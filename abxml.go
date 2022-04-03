@@ -16,6 +16,17 @@ type ResXMLTreeNode struct {
 	LineNumber uint32
 	Comment    ResStringPoolRef
 }
+
+type ResXMLTreeNamespaceExt struct {
+	Prefix ResStringPoolRef
+	URI    ResStringPoolRef
+}
+
+type ResXMLTreeEndElementExt struct {
+	NS   ResStringPoolRef
+	Name ResStringPoolRef
+}
+
 type ResXMLTreeAttrExt struct {
 	NS             ResStringPoolRef
 	Name           ResStringPoolRef

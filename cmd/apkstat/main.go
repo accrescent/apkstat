@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
 	"github.com/accrescent/apkstat"
 	"os"
@@ -13,8 +14,13 @@ func main() {
 		panic(err)
 	}
 
-	m, err := apkstat.ParseManifest(file)
+	p, err := apkstat.NewParser(file)
 	if err != nil {
+		panic(err)
+	}
+
+	var m apkstat.Manifest
+	if err := xml.Unmarshal([]byte(p.String()), &m); err != nil {
 		panic(err)
 	}
 
