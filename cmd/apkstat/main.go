@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/accrescent/apkstat"
 	"os"
+
+	"github.com/accrescent/apkstat"
 )
 
 func main() {
