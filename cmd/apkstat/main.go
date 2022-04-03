@@ -31,4 +31,8 @@ func main() {
 	for i := 0; i < len(m.UsesPermissions); i++ {
 		fmt.Println("permission:", m.UsesPermissions[i].Name)
 	}
+
+	fmt.Println("minSdkVersion:", m.UsesSDK.MinSDKVersion)
+	fmt.Println("targetSdkVersion:", m.UsesSDK.TargetSDKVersion)
+	fmt.Println("maxSdkVersion:", m.UsesSDK.MaxSDKVersion)
 }
