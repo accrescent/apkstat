@@ -7,29 +7,29 @@ import (
 	"io"
 )
 
-type ResXMLTreeHeader struct {
-	Header ResChunkHeader
+type resXMLTreeHeader struct {
+	Header resChunkHeader
 }
 
-type ResXMLTreeNode struct {
-	Header     ResChunkHeader
+type resXMLTreeNode struct {
+	Header     resChunkHeader
 	LineNumber uint32
-	Comment    ResStringPoolRef
+	Comment    resStringPoolRef
 }
 
-type ResXMLTreeNamespaceExt struct {
-	Prefix ResStringPoolRef
-	URI    ResStringPoolRef
+type resXMLTreeNamespaceExt struct {
+	Prefix resStringPoolRef
+	URI    resStringPoolRef
 }
 
-type ResXMLTreeEndElementExt struct {
-	NS   ResStringPoolRef
-	Name ResStringPoolRef
+type resXMLTreeEndElementExt struct {
+	NS   resStringPoolRef
+	Name resStringPoolRef
 }
 
-type ResXMLTreeAttrExt struct {
-	NS             ResStringPoolRef
-	Name           ResStringPoolRef
+type resXMLTreeAttrExt struct {
+	NS             resStringPoolRef
+	Name           resStringPoolRef
 	AttributeStart uint16
 	AttributeSize  uint16
 	AttributeCount uint16
@@ -38,48 +38,48 @@ type ResXMLTreeAttrExt struct {
 	StyleIndex     uint16
 }
 
-type ResXMLTreeAttribute struct {
-	NS         ResStringPoolRef
-	Name       ResStringPoolRef
-	RawValue   ResStringPoolRef
-	TypedValue ResValue
+type resXMLTreeAttribute struct {
+	NS         resStringPoolRef
+	Name       resStringPoolRef
+	RawValue   resStringPoolRef
+	TypedValue resValue
 }
 
-func parseXMLElement(sr *io.SectionReader, sp map[ResStringPoolRef]string) (*xml.StartElement, error) {
+func parseXMLElement(sr *io.SectionReader, sp map[resStringPoolRef]string) (*xml.StartElement, error) {
 	var e xml.StartElement
 
-	node := new(ResXMLTreeNode)
+	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return nil, err
 	}
 
-	element := new(ResXMLTreeAttrExt)
+	element := new(resXMLTreeAttrExt)
 	if err := binary.Read(sr, binary.LittleEndian, element); err != nil {
 		return nil, err
 	}
 	e.Name = xml.Name{Space: sp[element.NS], Local: sp[element.Name]}
 
 	for i := 0; i < int(element.AttributeCount); i++ {
-		attr := new(ResXMLTreeAttribute)
+		attr := new(resXMLTreeAttribute)
 		if err := binary.Read(sr, binary.LittleEndian, attr); err != nil {
 			return nil, err
 		}
 
 		var value string
 		switch attr.TypedValue.DataType {
-		case TypeNull:
+		case typeNull:
 			value = ""
-		case TypeReference:
+		case typeReference:
 			value = fmt.Sprintf("@0x%08X", attr.TypedValue.Data)
-		case TypeString:
+		case typeString:
 			value = sp[attr.RawValue]
-		case TypeFloat:
+		case typeFloat:
 			value = fmt.Sprintf("%f", float32(attr.TypedValue.Data))
-		case TypeIntDec:
+		case typeIntDec:
 			value = fmt.Sprintf("%d", attr.TypedValue.Data)
-		case TypeIntHex:
+		case typeIntHex:
 			value = fmt.Sprintf("0x%08X", attr.TypedValue.Data)
-		case TypeIntBoolean:
+		case typeIntBoolean:
 			if attr.TypedValue.Data == 1 {
 				value = "true"
 			} else {
