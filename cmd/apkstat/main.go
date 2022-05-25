@@ -14,7 +14,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	r, err := apkstat.NewResParser(res)
 	if err != nil {
 		panic(err)
@@ -25,7 +24,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	x, err := apkstat.NewXMLParser(bxml, r, nil)
 	if err != nil {
 		panic(err)
@@ -39,11 +37,9 @@ func main() {
 	fmt.Println("package:", m.Package)
 	fmt.Println("versionCode:", m.VersionCode)
 	fmt.Println("versionName:", m.VersionName)
-
 	for i := 0; i < len(m.UsesPermissions); i++ {
 		fmt.Println("permission:", m.UsesPermissions[i].Name)
 	}
-
 	fmt.Println("minSdkVersion:", m.UsesSDK.MinSDKVersion)
 	fmt.Println("targetSdkVersion:", m.UsesSDK.TargetSDKVersion)
 	fmt.Println("maxSdkVersion:", m.UsesSDK.MaxSDKVersion)
