@@ -83,7 +83,7 @@ const (
 	utf8Flag   flags = 1 << 8
 )
 
-type resStringPoolheader struct {
+type resStringPoolHeader struct {
 	Header       resChunkHeader
 	StringCount  uint32
 	StyleCount   uint32
@@ -95,7 +95,7 @@ type resStringPoolheader struct {
 func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) {
 	stringPool := make(map[resStringPoolRef]string)
 
-	sp := new(resStringPoolheader)
+	sp := new(resStringPoolHeader)
 	if err := binary.Read(sr, binary.LittleEndian, sp); err != nil {
 		return nil, err
 	}
