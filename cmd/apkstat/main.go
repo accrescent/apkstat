@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	r, err := apkstat.NewResParser(res)
+	r, err := apkstat.NewResTable(res)
 	if err != nil {
 		panic(err)
 	}
@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	x, err := apkstat.NewXMLParser(bxml, r, nil)
+	x, err := apkstat.NewXMLFile(bxml, r, nil)
 	if err != nil {
 		panic(err)
 	}

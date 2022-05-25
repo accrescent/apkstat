@@ -9,21 +9,21 @@ import (
 	"strings"
 )
 
-type XMLParser struct {
+type XMLFile struct {
 	stringPool map[resStringPoolRef]string
 	nsToPrefix map[resStringPoolRef]resStringPoolRef
 	namespaces map[resStringPoolRef]resStringPoolRef
 	xml        strings.Builder
-	table      *ResParser
+	table      *ResTable
 	cfg        *ResTableConfig
 }
 
-func NewXMLParser(r io.ReaderAt, t *ResParser, cfg *ResTableConfig) (*XMLParser, error) {
-	p := new(XMLParser)
-	p.table = t
-	p.cfg = cfg
+func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, error) {
+	f := new(XMLFile)
+	f.table = t
+	f.cfg = cfg
 
-	fmt.Fprintf(&p.xml, xml.Header)
+	fmt.Fprintf(&f.xml, xml.Header)
 
 	header := new(resXMLTreeHeader)
 	sr := io.NewSectionReader(r, 0, maxReadBytes)
@@ -51,16 +51,16 @@ func NewXMLParser(r io.ReaderAt, t *ResParser, cfg *ResTableConfig) (*XMLParser,
 		var err error
 		switch chunk.Type {
 		case resStringPoolType:
-			p.stringPool, err = parseStringPool(io.NewSectionReader(sr, offset, maxReadBytes))
+			f.stringPool, err = parseStringPool(io.NewSectionReader(sr, offset, maxReadBytes))
 		case resXMLResourceMapType:
 		case resXMLStartNamespaceType:
-			err = p.parseStartNamespace(sr)
+			err = f.parseStartNamespace(sr)
 		case resXMLEndNamespaceType:
-			err = p.parseEndNamespace(sr)
+			err = f.parseEndNamespace(sr)
 		case resXMLStartElementType:
-			err = p.parseXMLStartElement(sr)
+			err = f.parseXMLStartElement(sr)
 		case resXMLEndElementType:
-			err = p.parseXMLEndElement(sr)
+			err = f.parseXMLEndElement(sr)
 		default:
 			return nil, errors.New("encountered invalid chunk type")
 		}
@@ -71,14 +71,14 @@ func NewXMLParser(r io.ReaderAt, t *ResParser, cfg *ResTableConfig) (*XMLParser,
 		offset += int64(chunk.Size)
 	}
 
-	return p, nil
+	return f, nil
 }
 
-func (p *XMLParser) String() string {
-	return p.xml.String()
+func (f *XMLFile) String() string {
+	return f.xml.String()
 }
 
-func (p *XMLParser) parseStartNamespace(sr *io.SectionReader) error {
+func (f *XMLFile) parseStartNamespace(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -89,19 +89,19 @@ func (p *XMLParser) parseStartNamespace(sr *io.SectionReader) error {
 		return err
 	}
 
-	if p.nsToPrefix == nil {
-		p.nsToPrefix = make(map[resStringPoolRef]resStringPoolRef)
+	if f.nsToPrefix == nil {
+		f.nsToPrefix = make(map[resStringPoolRef]resStringPoolRef)
 	}
-	if p.namespaces == nil {
-		p.namespaces = make(map[resStringPoolRef]resStringPoolRef)
+	if f.namespaces == nil {
+		f.namespaces = make(map[resStringPoolRef]resStringPoolRef)
 	}
-	p.nsToPrefix[ns.URI] = ns.Prefix
-	p.namespaces[ns.URI] = ns.Prefix
+	f.nsToPrefix[ns.URI] = ns.Prefix
+	f.namespaces[ns.URI] = ns.Prefix
 
 	return nil
 }
 
-func (p *XMLParser) parseEndNamespace(sr *io.SectionReader) error {
+func (f *XMLFile) parseEndNamespace(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -112,12 +112,12 @@ func (p *XMLParser) parseEndNamespace(sr *io.SectionReader) error {
 		return err
 	}
 
-	delete(p.namespaces, ns.URI)
+	delete(f.namespaces, ns.URI)
 
 	return nil
 }
 
-func (p *XMLParser) parseXMLStartElement(sr *io.SectionReader) error {
+func (f *XMLFile) parseXMLStartElement(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -128,16 +128,16 @@ func (p *XMLParser) parseXMLStartElement(sr *io.SectionReader) error {
 		return err
 	}
 
-	fmt.Fprintf(&p.xml, "<%s", p.nsPrefix(element.NS, element.Name))
+	fmt.Fprintf(&f.xml, "<%s", f.nsPrefix(element.NS, element.Name))
 
-	for uri, prefix := range p.nsToPrefix {
-		fmt.Fprintf(&p.xml, " xmlns:%s=\"", p.stringPool[prefix])
-		if err := xml.EscapeText(&p.xml, []byte(p.stringPool[uri])); err != nil {
+	for uri, prefix := range f.nsToPrefix {
+		fmt.Fprintf(&f.xml, " xmlns:%s=\"", f.stringPool[prefix])
+		if err := xml.EscapeText(&f.xml, []byte(f.stringPool[uri])); err != nil {
 			return err
 		}
-		fmt.Fprintf(&p.xml, "\"")
+		fmt.Fprintf(&f.xml, "\"")
 	}
-	p.nsToPrefix = nil
+	f.nsToPrefix = nil
 
 	for i := 0; i < int(element.AttributeCount); i++ {
 		attr := new(resXMLTreeAttribute)
@@ -150,8 +150,8 @@ func (p *XMLParser) parseXMLStartElement(sr *io.SectionReader) error {
 		case typeNull:
 			value = ""
 		case typeReference:
-			if p.table != nil {
-				r, err := p.table.getResource(resID(attr.TypedValue.Data), p.cfg)
+			if f.table != nil {
+				r, err := f.table.getResource(resID(attr.TypedValue.Data), f.cfg)
 				if err != nil {
 					return err
 				}
@@ -160,7 +160,7 @@ func (p *XMLParser) parseXMLStartElement(sr *io.SectionReader) error {
 				value = fmt.Sprintf("@0x%08X", attr.TypedValue.Data)
 			}
 		case typeString:
-			value = p.stringPool[attr.RawValue]
+			value = f.stringPool[attr.RawValue]
 		case typeFloat:
 			value = fmt.Sprintf("%f", float32(attr.TypedValue.Data))
 		case typeIntDec:
@@ -175,18 +175,18 @@ func (p *XMLParser) parseXMLStartElement(sr *io.SectionReader) error {
 			}
 		}
 
-		fmt.Fprintf(&p.xml, " %s=\"", p.nsPrefix(attr.NS, attr.Name))
-		if err := xml.EscapeText(&p.xml, []byte(value)); err != nil {
+		fmt.Fprintf(&f.xml, " %s=\"", f.nsPrefix(attr.NS, attr.Name))
+		if err := xml.EscapeText(&f.xml, []byte(value)); err != nil {
 			return err
 		}
-		fmt.Fprintf(&p.xml, "\"")
+		fmt.Fprintf(&f.xml, "\"")
 	}
-	fmt.Fprintf(&p.xml, ">")
+	fmt.Fprintf(&f.xml, ">")
 
 	return nil
 }
 
-func (p *XMLParser) parseXMLEndElement(sr *io.SectionReader) error {
+func (f *XMLFile) parseXMLEndElement(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -197,15 +197,15 @@ func (p *XMLParser) parseXMLEndElement(sr *io.SectionReader) error {
 		return err
 	}
 
-	fmt.Fprintf(&p.xml, "</%s>", p.nsPrefix(element.NS, element.Name))
+	fmt.Fprintf(&f.xml, "</%s>", f.nsPrefix(element.NS, element.Name))
 
 	return nil
 }
 
-func (p *XMLParser) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
+func (f *XMLFile) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
 	if ns.Index == 0xFFFFFFFF {
-		return fmt.Sprintf("%s", p.stringPool[name])
+		return fmt.Sprintf("%s", f.stringPool[name])
 	} else {
-		return fmt.Sprintf("%s:%s", p.stringPool[p.namespaces[ns]], p.stringPool[name])
+		return fmt.Sprintf("%s:%s", f.stringPool[f.namespaces[ns]], f.stringPool[name])
 	}
 }
