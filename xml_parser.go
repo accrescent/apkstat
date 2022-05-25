@@ -9,17 +9,19 @@ import (
 	"strings"
 )
 
-const maxReadBytes = 1 << 58 // 64 MiB
-
-type Parser struct {
+type XMLParser struct {
 	stringPool map[resStringPoolRef]string
 	nsToPrefix map[resStringPoolRef]resStringPoolRef
 	namespaces map[resStringPoolRef]resStringPoolRef
 	xml        strings.Builder
+	table      *ResParser
+	cfg        *ResTableConfig
 }
 
-func NewParser(r io.ReaderAt) (*Parser, error) {
-	p := new(Parser)
+func NewXMLParser(r io.ReaderAt, t *ResParser, cfg *ResTableConfig) (*XMLParser, error) {
+	p := new(XMLParser)
+	p.table = t
+	p.cfg = cfg
 
 	fmt.Fprintf(&p.xml, xml.Header)
 
@@ -72,11 +74,11 @@ func NewParser(r io.ReaderAt) (*Parser, error) {
 	return p, nil
 }
 
-func (p *Parser) String() string {
+func (p *XMLParser) String() string {
 	return p.xml.String()
 }
 
-func (p *Parser) parseStartNamespace(sr *io.SectionReader) error {
+func (p *XMLParser) parseStartNamespace(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -98,7 +100,7 @@ func (p *Parser) parseStartNamespace(sr *io.SectionReader) error {
 	return nil
 }
 
-func (p *Parser) parseEndNamespace(sr *io.SectionReader) error {
+func (p *XMLParser) parseEndNamespace(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -114,7 +116,7 @@ func (p *Parser) parseEndNamespace(sr *io.SectionReader) error {
 	return nil
 }
 
-func (p *Parser) parseXMLStartElement(sr *io.SectionReader) error {
+func (p *XMLParser) parseXMLStartElement(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -147,7 +149,15 @@ func (p *Parser) parseXMLStartElement(sr *io.SectionReader) error {
 		case typeNull:
 			value = ""
 		case typeReference:
-			value = fmt.Sprintf("@0x%08X", attr.TypedValue.Data)
+			if p.table != nil {
+				r, err := p.table.getResource(resID(attr.TypedValue.Data), p.cfg)
+				if err != nil {
+					return err
+				}
+				value = r
+			} else {
+				value = fmt.Sprintf("@0x%08X", attr.TypedValue.Data)
+			}
 		case typeString:
 			value = p.stringPool[attr.RawValue]
 		case typeFloat:
@@ -175,7 +185,7 @@ func (p *Parser) parseXMLStartElement(sr *io.SectionReader) error {
 	return nil
 }
 
-func (p *Parser) parseXMLEndElement(sr *io.SectionReader) error {
+func (p *XMLParser) parseXMLEndElement(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
 		return err
@@ -191,7 +201,7 @@ func (p *Parser) parseXMLEndElement(sr *io.SectionReader) error {
 	return nil
 }
 
-func (p *Parser) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
+func (p *XMLParser) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
 	if ns.Index == 0xFFFFFFFF {
 		return fmt.Sprintf("%s", p.stringPool[name])
 	} else {

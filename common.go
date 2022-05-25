@@ -6,6 +6,8 @@ import (
 	"unicode/utf16"
 )
 
+const maxReadBytes = 1 << 58 // 64 MiB
+
 type resChunkHeader struct {
 	Type       uint16
 	HeaderSize uint16
@@ -15,7 +17,7 @@ type resChunkHeader struct {
 const (
 	resNullType       = 0x0
 	resStringPoolType = 0x1
-	resTableType      = 0x2
+	resTableChunkType = 0x2
 	resXMLType        = 0x3
 
 	resXMLFirstChunkType     = 0x100
@@ -103,7 +105,7 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 		return nil, err
 	}
 
-	if sp.Flags&utf8Flag != utf8Flag {
+	if sp.Flags&utf8Flag != utf8Flag { // UTF-16
 		for i, sStart := range sIndices {
 			if _, err := sr.Seek(int64(sp.StringsStart+sStart), io.SeekStart); err != nil {
 				return nil, err
@@ -112,6 +114,7 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 			if err := binary.Read(sr, binary.LittleEndian, &strlen); err != nil {
 				return nil, err
 			}
+
 			buf := make([]uint16, strlen)
 			if err := binary.Read(sr, binary.LittleEndian, buf); err != nil {
 				return nil, err
@@ -120,9 +123,49 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 			spRef := resStringPoolRef{Index: uint32(i)}
 			stringPool[spRef] = string(utf16.Decode(buf))
 		}
+	} else { // UTF-8
+		for i, sStart := range sIndices {
+			if _, err := sr.Seek(int64(sp.StringsStart+sStart), io.SeekStart); err != nil {
+				return nil, err
+			}
+
+			if _, err := parseVar8Len(sr); err != nil {
+				return nil, err
+			}
+			size, err := parseVar8Len(sr)
+			if err != nil {
+				return nil, err
+			}
+
+			buf := make([]uint8, size)
+			if err := binary.Read(sr, binary.LittleEndian, buf); err != nil {
+				return nil, err
+			}
+
+			spRef := resStringPoolRef{Index: uint32(i)}
+			stringPool[spRef] = string(buf)
+		}
 	}
 
 	return stringPool, nil
+}
+
+func parseVar8Len(sr *io.SectionReader) (int, error) {
+	var size int
+	var first, second uint8
+	if err := binary.Read(sr, binary.LittleEndian, &first); err != nil {
+		return 0, err
+	}
+	if (first & 0x80) != 0 { // high bit is set, read next byte
+		if err := binary.Read(sr, binary.LittleEndian, &second); err != nil {
+			return 0, err
+		}
+		size = (int(first&0x7F) << 8) + int(second)
+	} else {
+		size = int(first)
+	}
+
+	return size, nil
 }
 
 type resStringPoolSpan struct {
