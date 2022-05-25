@@ -161,7 +161,7 @@ func parseVar8Len(sr *io.SectionReader) (int, error) {
 		if err := binary.Read(sr, binary.LittleEndian, &second); err != nil {
 			return 0, err
 		}
-		size = (int(first&0x7F) << 8) + int(second)
+		size = (int(first&0x7F) << 8) | int(second)
 	} else {
 		size = int(first)
 	}
