@@ -97,6 +97,7 @@ func (p *XMLParser) parseStartNamespace(sr *io.SectionReader) error {
 	}
 	p.nsToPrefix[ns.URI] = ns.Prefix
 	p.namespaces[ns.URI] = ns.Prefix
+
 	return nil
 }
 
