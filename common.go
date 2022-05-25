@@ -132,12 +132,13 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 			if _, err := sr.Seek(int64(sp.StringsStart+sStart), io.SeekStart); err != nil {
 				return nil, err
 			}
-			var strlen uint16
-			if err := binary.Read(sr, binary.LittleEndian, &strlen); err != nil {
+
+			size, err := parseVar16Len(sr)
+			if err != nil {
 				return nil, err
 			}
 
-			buf := make([]uint16, strlen)
+			buf := make([]uint16, size)
 			if err := binary.Read(sr, binary.LittleEndian, buf); err != nil {
 				return nil, err
 			}
@@ -161,6 +162,24 @@ func parseVar8Len(sr *io.SectionReader) (int, error) {
 			return 0, err
 		}
 		size = (int(first&0x7F) << 8) + int(second)
+	} else {
+		size = int(first)
+	}
+
+	return size, nil
+}
+
+func parseVar16Len(sr *io.SectionReader) (int, error) {
+	var size int
+	var first, second uint16
+	if err := binary.Read(sr, binary.LittleEndian, &first); err != nil {
+		return 0, err
+	}
+	if first&0x8000 != 0 { // high bit is set, read next byte
+		if err := binary.Read(sr, binary.LittleEndian, &second); err != nil {
+			return 0, err
+		}
+		size = ((int(first) & 0x7FFF) << 16) | int(second)
 	} else {
 		size = int(first)
 	}
