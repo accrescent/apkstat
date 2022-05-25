@@ -91,6 +91,7 @@ func (id resID) entry() int {
 
 func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error) {
 	pkg := id.pkg()
+	type_ := id.type_()
 	entry := id.entry()
 
 	p := f.packages[pkg]
@@ -102,7 +103,7 @@ func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error)
 
 	for _, t := range p.tableTypes {
 		switch {
-		case int(t.header.ID) != id.type_():
+		case int(t.header.ID) != type_:
 			continue
 		case !t.header.Config.match(config):
 			continue
