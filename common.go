@@ -6,7 +6,7 @@ import (
 	"unicode/utf16"
 )
 
-const maxReadBytes = 1 << 58 // 64 MiB
+const maxReadBytes = 1 << 26 // 64 MiB
 
 type resChunkHeader struct {
 	Type       uint16
