@@ -105,25 +105,7 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 		return nil, err
 	}
 
-	if sp.Flags&utf8Flag != utf8Flag { // UTF-16
-		for i, sStart := range sIndices {
-			if _, err := sr.Seek(int64(sp.StringsStart+sStart), io.SeekStart); err != nil {
-				return nil, err
-			}
-			var strlen uint16
-			if err := binary.Read(sr, binary.LittleEndian, &strlen); err != nil {
-				return nil, err
-			}
-
-			buf := make([]uint16, strlen)
-			if err := binary.Read(sr, binary.LittleEndian, buf); err != nil {
-				return nil, err
-			}
-
-			spRef := resStringPoolRef{Index: uint32(i)}
-			stringPool[spRef] = string(utf16.Decode(buf))
-		}
-	} else { // UTF-8
+	if sp.Flags&utf8Flag == utf8Flag { // UTF-8
 		for i, sStart := range sIndices {
 			if _, err := sr.Seek(int64(sp.StringsStart+sStart), io.SeekStart); err != nil {
 				return nil, err
@@ -144,6 +126,24 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 
 			spRef := resStringPoolRef{Index: uint32(i)}
 			stringPool[spRef] = string(buf)
+		}
+	} else { // UTF-16
+		for i, sStart := range sIndices {
+			if _, err := sr.Seek(int64(sp.StringsStart+sStart), io.SeekStart); err != nil {
+				return nil, err
+			}
+			var strlen uint16
+			if err := binary.Read(sr, binary.LittleEndian, &strlen); err != nil {
+				return nil, err
+			}
+
+			buf := make([]uint16, strlen)
+			if err := binary.Read(sr, binary.LittleEndian, buf); err != nil {
+				return nil, err
+			}
+
+			spRef := resStringPoolRef{Index: uint32(i)}
+			stringPool[spRef] = string(utf16.Decode(buf))
 		}
 	}
 
