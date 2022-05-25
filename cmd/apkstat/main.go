@@ -14,6 +14,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer res.Close()
 	r, err := apkstat.NewResTable(res)
 	if err != nil {
 		panic(err)
@@ -24,6 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer bxml.Close()
 	x, err := apkstat.NewXMLFile(bxml, r, nil)
 	if err != nil {
 		panic(err)
