@@ -111,6 +111,8 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 				return nil, err
 			}
 
+			// First var8 is length in characters and second is length in bytes. We want
+			// the length in bytes so we skip the first var8.
 			if _, err := parseVar8Len(sr); err != nil {
 				return nil, err
 			}
