@@ -159,11 +159,11 @@ func parseVar8Len(sr *io.SectionReader) (int, error) {
 	if err := binary.Read(sr, binary.LittleEndian, &first); err != nil {
 		return 0, err
 	}
-	if (first & 0x80) != 0 { // high bit is set, read next byte
+	if first&0x80 != 0 { // high bit is set, read next byte
 		if err := binary.Read(sr, binary.LittleEndian, &second); err != nil {
 			return 0, err
 		}
-		size = (int(first&0x7F) << 8) | int(second)
+		size = int(first&0x7F<<8 | second)
 	} else {
 		size = int(first)
 	}
@@ -181,7 +181,7 @@ func parseVar16Len(sr *io.SectionReader) (int, error) {
 		if err := binary.Read(sr, binary.LittleEndian, &second); err != nil {
 			return 0, err
 		}
-		size = ((int(first) & 0x7FFF) << 16) | int(second)
+		size = int(first&0x7FFF<<16 | second)
 	} else {
 		size = int(first)
 	}
