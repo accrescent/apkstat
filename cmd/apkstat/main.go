@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"encoding/xml"
+	"os"
 
 	"github.com/accrescent/apkstat"
 )
@@ -11,16 +12,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	m := apk.Manifest()
 
-	fmt.Println("package:", m.Package)
-	fmt.Println("versionCode:", m.VersionCode)
-	fmt.Println("versionName:", m.VersionName)
-	for i := 0; i < len(m.UsesPermissions); i++ {
-		fmt.Println("permission:", m.UsesPermissions[i].Name)
+	enc := xml.NewEncoder(os.Stdout)
+	enc.Indent("", "\t")
+	if err := enc.Encode(apk.Manifest()); err != nil {
+		panic(err)
 	}
-	fmt.Println("minSdkVersion:", m.UsesSDK.MinSDKVersion)
-	fmt.Println("targetSdkVersion:", m.UsesSDK.TargetSDKVersion)
-	fmt.Println("maxSdkVersion:", m.UsesSDK.MaxSDKVersion)
-	fmt.Println("label:", m.Application.Label)
 }
