@@ -10,7 +10,8 @@ type Manifest struct {
 }
 
 type Application struct {
-	Label string `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	Label                string `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	UsesCleartextTraffic bool   `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
 }
 
 type UsesPermission struct {
