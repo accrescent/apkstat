@@ -133,7 +133,7 @@ func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error)
 	case typeIntHex:
 		return fmt.Sprintf("0x%08X", v.Data), nil
 	case typeIntBoolean:
-		if v.Data == 1 {
+		if v.Data != 0 {
 			return "true", nil
 		} else {
 			return "false", nil

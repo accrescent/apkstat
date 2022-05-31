@@ -168,7 +168,7 @@ func (f *XMLFile) parseXMLStartElement(sr *io.SectionReader) error {
 		case typeIntHex:
 			value = fmt.Sprintf("0x%08X", attr.TypedValue.Data)
 		case typeIntBoolean:
-			if attr.TypedValue.Data == 1 {
+			if attr.TypedValue.Data != 0 {
 				value = "true"
 			} else {
 				value = "false"
