@@ -307,6 +307,27 @@ type ResTableConfig struct {
 	LocaleNumberingSystem   [8]uint8
 }
 
+func (c ResTableConfig) getImportanceScoreOfLocale() int {
+	var x, y, z int
+	if c.LocaleVariant[0] != 0 {
+		x = 4
+	} else {
+		x = 0
+	}
+	if c.LocaleScript[0] != 0 && !c.LocaleScriptWasComputed {
+		y = 2
+	} else {
+		y = 0
+	}
+	if c.LocaleNumberingSystem[0] != 0 {
+		z = 1
+	} else {
+		z = 0
+	}
+
+	return x + y + z
+}
+
 func (c ResTableConfig) isLocaleMoreSpecificThan(o *ResTableConfig) int {
 	if c.Language != [2]uint8{} || c.Country != [2]uint8{} ||
 		o.Language != [2]uint8{} || o.Country != [2]uint8{} {
@@ -329,7 +350,7 @@ func (c ResTableConfig) isLocaleMoreSpecificThan(o *ResTableConfig) int {
 		}
 	}
 
-	return 0
+	return c.getImportanceScoreOfLocale() - o.getImportanceScoreOfLocale()
 }
 
 func (c ResTableConfig) isMoreSpecificThan(o *ResTableConfig) bool {
