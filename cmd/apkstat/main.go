@@ -29,6 +29,7 @@ func main() {
 		if err := enc.Encode(apk.Manifest()); err != nil {
 			fatal(err.Error())
 		}
+		fmt.Println()
 	} else {
 		file, err := os.Open(*xmlFlag)
 		if err != nil {
