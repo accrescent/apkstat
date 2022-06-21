@@ -602,6 +602,47 @@ func (c ResTableConfig) isLocaleBetterThan(o, r *ResTableConfig) bool {
 		return c.Language[0] != 0
 	}
 
+	// If we are here, both the resources have an equivalent non-empty language
+	// to the request.
+	//
+	// Because the languages are equivalent, computeScript() always returns a
+	// non-empty script for languages it knows about, and we have passed the
+	// script checks in match(), the scripts are either all unknown or are all
+	// the same. So we can't gain anything by checking the scripts. We need to
+	// check the region and variant.
+
+	// See if any of the regions is better than the other.
+	regionComparison := localeDataCompareRegions(
+		c.Country[:],
+		o.Country[:],
+		r.Language[:],
+		r.LocaleScript[:],
+		r.Country[:],
+	)
+	if regionComparison != 0 {
+		return regionComparison > 0
+	}
+
+	// The regions are the same. Try the variant.
+	localeMatches := c.LocaleVariant == r.LocaleVariant
+	otherMatches := o.LocaleVariant == r.LocaleVariant
+	if localeMatches != otherMatches {
+		return localeMatches
+	}
+
+	// The variants are the same. Try the numbering system.
+	localeNumsysMatches := c.LocaleNumberingSystem == r.LocaleNumberingSystem
+	otherNumsysMatches := o.LocaleNumberingSystem == r.LocaleNumberingSystem
+	if localeNumsysMatches != otherNumsysMatches {
+		return localeNumsysMatches
+	}
+
+	// Finally, the languages, although equivalent, may still be different (like for Tagalog and
+	// Filipino). Identical is better than just equivalent.
+	if c.Language == r.Language && o.Language != r.Language {
+		return true
+	}
+
 	return false
 }
 

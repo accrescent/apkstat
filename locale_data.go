@@ -62,6 +62,122 @@ func findAncestors(out []uint32, stopListIndex *int,
 	return count
 }
 
+func findDistance(supported uint32, script []uint8, requestAncestors []uint32, requestAncestorsCount int) int {
+	var requestAncestorsIndex int
+	supportedAncestorCount := findAncestors(
+		nil,
+		&requestAncestorsIndex,
+		supported,
+		script,
+		requestAncestors[:],
+		requestAncestorsCount,
+	)
+	// Since both locales share the same root, there will always be a shared ancestor, so the
+	// distance in the parent tree is the sum of the distance of 'supported' to the lowest
+	// common ancestor (number of ancestors written for 'supported' minus 1) plus the distance
+	// of 'request' to the lowest common ancestor (the index of the ancestor in
+	// request_ancestors).
+	return supportedAncestorCount + requestAncestorsIndex - 1
+}
+
+func isRepresentative(languageAndRegion uint32, script []uint8) bool {
+	packedLocale :=
+		uint64(languageAndRegion)<<32 |
+			uint64(script[0])<<24 |
+			uint64(script[1])<<16 |
+			uint64(script[2])<<8 |
+			uint64(script[3])
+	_, exists := representativeLocales()[packedLocale]
+	return exists
+}
+
+const usSpanish = 0x65735553            // es-US
+const mexicanSpanish = 0x65734D58       // es-MX
+const latinAmericanSpanish = 0x6573A424 // es-419
+
+func isSpecialSpanish(languageAndRegion uint32) bool {
+	return languageAndRegion == usSpanish || languageAndRegion == mexicanSpanish
+}
+
+func localeDataCompareRegions(
+	leftRegion []uint8,
+	rightRegion []uint8,
+	requestedLanguage []uint8,
+	requestedScript []uint8,
+	requestedRegion []uint8,
+) int {
+	if leftRegion[0] == rightRegion[0] && leftRegion[1] == rightRegion[1] {
+		return 0
+	}
+	left := packLocale(*(*[2]uint8)(requestedLanguage), *(*[2]uint8)(leftRegion))
+	right := packLocale(*(*[2]uint8)(requestedLanguage), *(*[2]uint8)(rightRegion))
+	request := packLocale(*(*[2]uint8)(requestedLanguage), *(*[2]uint8)(requestedRegion))
+
+	// If one and only one of the two locales is a special Spanish locale, we replace it with
+	// es-419. We don't do the replacement if the other locale is already es-419, or both
+	// locales are special Spanish locales (when es-US is being compared to es-MX).
+	leftIsSpecialSpanish := isSpecialSpanish(left)
+	rightIsSpecialSpanish := isSpecialSpanish(right)
+	if leftIsSpecialSpanish && !rightIsSpecialSpanish && right != latinAmericanSpanish {
+		left = latinAmericanSpanish
+	} else if rightIsSpecialSpanish && !leftIsSpecialSpanish && left != latinAmericanSpanish {
+		right = latinAmericanSpanish
+	}
+
+	var requestAncestors [maxParentDepth + 1]uint32
+	var leftRightIndex int
+	leftAndRight := [2]uint32{left, right}
+	ancestorCount := findAncestors(
+		requestAncestors[:],
+		&leftRightIndex,
+		request,
+		requestedScript,
+		leftAndRight[:],
+		len(leftAndRight),
+	)
+	if leftRightIndex == 0 { // We saw left earlier
+		return 1
+	}
+	if leftRightIndex == 1 { // We saw right earlier
+		return -1
+	}
+
+	// If we are here, neither left nor right are an ancestor of the request. This means that
+	// all the ancestors have been computed and the last ancestor is just the language by
+	// itself. we will use the distance in the parent tree for determining the better match.
+	leftDistance := findDistance(left, requestedScript, requestAncestors[:], ancestorCount)
+	rightDistance := findDistance(right, requestedScript, requestAncestors[:], ancestorCount)
+	if leftDistance != rightDistance {
+		return rightDistance - leftDistance // smaller distance is better
+	}
+
+	// If we are here, left and right are equidistant from the request. We will try and see if
+	// any of them is a representative locale.
+	leftIsRepresentative := isRepresentative(left, requestedScript)
+	rightIsRepresentative := isRepresentative(right, requestedScript)
+	if leftIsRepresentative != rightIsRepresentative {
+		var leftIsRepresentativeVal int
+		var rightIsRepresentativeVal int
+		if leftIsRepresentative {
+			leftIsRepresentativeVal = 1
+		} else {
+			leftIsRepresentativeVal = 0
+		}
+		if rightIsRepresentative {
+			rightIsRepresentativeVal = 1
+		} else {
+			rightIsRepresentativeVal = 0
+		}
+
+		return leftIsRepresentativeVal - rightIsRepresentativeVal
+	}
+
+	// We have no way of figuring out which locale is a better match. For the sake of stability,
+	// we consider the locale lwith the lower region code (in dictionary order) better, with
+	// two-letter codes before three-digit codes (singe two-letter codes are more specific).
+	return int(right - left)
+}
+
 func englishStopList() [2]uint32 {
 	return [2]uint32{
 		0x656E0000, // en
