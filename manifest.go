@@ -1,10 +1,10 @@
 package apkstat
 
 type Manifest struct {
-	Application     Application      `xml:"application"`
 	Package         string           `xml:"package,attr"`
 	VersionCode     int32            `xml:"http://schemas.android.com/apk/res/android versionCode,attr"`
 	VersionName     string           `xml:"http://schemas.android.com/apk/res/android versionName,attr"`
+	Application     Application      `xml:"application"`
 	UsesPermissions []UsesPermission `xml:"uses-permission"`
 	UsesSDK         UsesSDK          `xml:"uses-sdk"`
 }
