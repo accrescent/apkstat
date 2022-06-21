@@ -19,7 +19,7 @@ func main() {
 	}
 
 	if *apkFlag != "" {
-		apk, err := apkstat.OpenAPK(*apkFlag)
+		apk, err := apk.Open(*apkFlag)
 		if err != nil {
 			fatal(err.Error())
 		}
@@ -35,7 +35,7 @@ func main() {
 		if err != nil {
 			fatal(err.Error())
 		}
-		xmlFile, err := apkstat.NewXMLFile(file, nil, nil)
+		xmlFile, err := apk.NewXMLFile(file, nil, nil)
 		if err != nil {
 			fatal(err.Error())
 		}

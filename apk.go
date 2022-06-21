@@ -1,4 +1,4 @@
-package apkstat
+package apk
 
 import (
 	"archive/zip"
@@ -11,7 +11,7 @@ type APK struct {
 	manifest Manifest
 }
 
-func OpenAPK(name string) (*APK, error) {
+func Open(name string) (*APK, error) {
 	z, err := zip.OpenReader(name)
 	if err != nil {
 		return nil, err

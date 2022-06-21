@@ -1,4 +1,4 @@
-package apkstat
+package apk
 
 type Manifest struct {
 	Package         string            `xml:"package,attr"`

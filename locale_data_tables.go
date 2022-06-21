@@ -1,4 +1,4 @@
-package apkstat
+package apk
 
 func representativeLocales() map[uint64]struct{} {
 	return map[uint64]struct{}{

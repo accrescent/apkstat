@@ -1,4 +1,4 @@
-package apkstat
+package apk
 
 import (
 	"encoding/binary"

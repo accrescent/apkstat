@@ -1,4 +1,4 @@
-package apkstat
+package apk
 
 func packLocale(lang [2]uint8, region [2]uint8) uint32 {
 	return uint32(lang[0])<<24 | uint32(lang[1])<<16 | uint32(region[0])<<8 | uint32(region[1])
