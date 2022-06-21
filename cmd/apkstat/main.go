@@ -25,7 +25,7 @@ func main() {
 		}
 
 		enc := xml.NewEncoder(os.Stdout)
-		enc.Indent("", "\t")
+		enc.Indent("", "    ")
 		if err := enc.Encode(apk.Manifest()); err != nil {
 			fatal(err.Error())
 		}
