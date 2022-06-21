@@ -44,7 +44,7 @@ type Activity struct {
 }
 
 type IntentFilter struct {
-	Priority   *int32      `xml:"http://schemas.android.com/apk/res/android priority,attr"`
+	Priority   *uint32     `xml:"http://schemas.android.com/apk/res/android priority,attr"`
 	Order      *int32      `xml:"http://schemas.android.com/apk/res/android order,attr"`
 	AutoVerify *bool       `xml:"http://schemas.android.com/apk/res/android autoVerify,attr"`
 	Actions    []Action    `xml:"action"`
