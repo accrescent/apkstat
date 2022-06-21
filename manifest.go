@@ -25,6 +25,7 @@ type Application struct {
 	TestOnly                     *bool       `xml:"http://schemas.android.com/apk/res/android testOnly,attr"`
 	UsesCleartextTraffic         *bool       `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
 	Activities                   *[]Activity `xml:"activity"`
+	MetaData                     *[]MetaData `xml:"meta-data"`
 	Services                     *[]Service  `xml:"service"`
 }
 
@@ -33,6 +34,7 @@ type Activity struct {
 	Label         *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
 	Name          string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	IntentFilters *[]IntentFilter `xml:"intent-filter"`
+	MetaData      *[]MetaData     `xml:"meta-data"`
 }
 
 type IntentFilter struct {
@@ -62,6 +64,12 @@ type Data struct {
 	MimeType    *string `xml:"http://schemas.android.com/apk/res/android mimeType,attr"`
 }
 
+type MetaData struct {
+	Name     string  `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	Resource *string `xml:"http://schemas.android.com/apk/res/android resource,attr"`
+	Value    *string `xml:"http://schemas.android.com/apk/res/android value,attr"`
+}
+
 type Service struct {
 	Description     *string         `xml:"http://schemas.android.com/apk/res/android description,attr"`
 	DirectBootAware *bool           `xml:"http://schemas.android.com/apk/res/android directBootAware,attr"`
@@ -72,6 +80,7 @@ type Service struct {
 	Name            string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	Permission      *string         `xml:"http://schemas.android.com/apk/res/android permission,attr"`
 	IntentFilters   *[]IntentFilter `xml:"intent-filter"`
+	MetaData        *[]MetaData     `xml:"meta-data"`
 }
 
 type UsesPermission struct {
