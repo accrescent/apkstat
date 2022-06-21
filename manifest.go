@@ -10,24 +10,25 @@ type Manifest struct {
 }
 
 type Application struct {
-	AllowTaskReparenting         *bool       `xml:"http://schemas.android.com/apk/res/android allowTaskReparenting,attr"`
-	AllowBackup                  *bool       `xml:"http://schemas.android.com/apk/res/android allowBackup,attr"`
-	BackupAgent                  *string     `xml:"http://schemas.android.com/apk/res/android backupAgent,attr"`
-	BackupInForeground           *bool       `xml:"http://schemas.android.com/apk/res/android backupInForeground,attr"`
-	DataExtractionRules          *string     `xml:"http://schemas.android.com/apk/res/android dataExtractionRules,attr"`
-	Debuggable                   *bool       `xml:"http://schemas.android.com/apk/res/android debuggable,attr"`
-	Label                        *string     `xml:"http://schemas.android.com/apk/res/android label,attr"`
-	ManageSpaceActivity          *string     `xml:"http://schemas.android.com/apk/res/android manageSpaceActivity,attr"`
-	Name                         *string     `xml:"http://schemas.android.com/apk/res/android name,attr"`
-	NetworkSecurityConfig        *string     `xml:"http://schemas.android.com/apk/res/android networkSecurityConfig,attr"`
-	RequestLegacyExternalStorage *bool       `xml:"http://schemas.android.com/apk/res/android requestLegacyExternalStorage,attr"`
-	SupportsRTL                  *bool       `xml:"http://schemas.android.com/apk/res/android supportsRtl,attr"`
-	TestOnly                     *bool       `xml:"http://schemas.android.com/apk/res/android testOnly,attr"`
-	UsesCleartextTraffic         *bool       `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
-	Activities                   *[]Activity `xml:"activity"`
-	MetaData                     *[]MetaData `xml:"meta-data"`
-	Services                     *[]Service  `xml:"service"`
-	Receivers                    *[]Receiver `xml:"receiver"`
+	AllowTaskReparenting         *bool            `xml:"http://schemas.android.com/apk/res/android allowTaskReparenting,attr"`
+	AllowBackup                  *bool            `xml:"http://schemas.android.com/apk/res/android allowBackup,attr"`
+	BackupAgent                  *string          `xml:"http://schemas.android.com/apk/res/android backupAgent,attr"`
+	BackupInForeground           *bool            `xml:"http://schemas.android.com/apk/res/android backupInForeground,attr"`
+	DataExtractionRules          *string          `xml:"http://schemas.android.com/apk/res/android dataExtractionRules,attr"`
+	Debuggable                   *bool            `xml:"http://schemas.android.com/apk/res/android debuggable,attr"`
+	Label                        *string          `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	ManageSpaceActivity          *string          `xml:"http://schemas.android.com/apk/res/android manageSpaceActivity,attr"`
+	Name                         *string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	NetworkSecurityConfig        *string          `xml:"http://schemas.android.com/apk/res/android networkSecurityConfig,attr"`
+	RequestLegacyExternalStorage *bool            `xml:"http://schemas.android.com/apk/res/android requestLegacyExternalStorage,attr"`
+	SupportsRTL                  *bool            `xml:"http://schemas.android.com/apk/res/android supportsRtl,attr"`
+	TestOnly                     *bool            `xml:"http://schemas.android.com/apk/res/android testOnly,attr"`
+	UsesCleartextTraffic         *bool            `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
+	Activities                   *[]Activity      `xml:"activity"`
+	ActivityAliases              *[]ActivityAlias `xml:"activity-alias"`
+	MetaData                     *[]MetaData      `xml:"meta-data"`
+	Services                     *[]Service       `xml:"service"`
+	Receivers                    *[]Receiver      `xml:"receiver"`
 }
 
 type Activity struct {
@@ -69,6 +70,17 @@ type MetaData struct {
 	Name     string  `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	Resource *string `xml:"http://schemas.android.com/apk/res/android resource,attr"`
 	Value    *string `xml:"http://schemas.android.com/apk/res/android value,attr"`
+}
+
+type ActivityAlias struct {
+	Enabled        *bool           `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
+	Exported       bool            `xml:"http://schemas.android.com/apk/res/android exported,attr"`
+	Label          *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	Name           string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	Permission     *string         `xml:"http://schemas.android.com/apk/res/android permission,attr"`
+	TargetActivity string          `xml:"http://schemas.android.com/apk/res/android targetActivity,attr"`
+	IntentFilters  *[]IntentFilter `xml:"intent-filter"`
+	MetaData       *[]MetaData     `xml:"meta-data"`
 }
 
 type Service struct {
