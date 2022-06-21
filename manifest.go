@@ -144,7 +144,8 @@ type Package struct {
 }
 
 type UsesPermission struct {
-	Name string `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	Name          string `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	MaxSDKVersion *int32 `xml:"http://schemas.android.com/apk/res/android maxSdkVersion,attr"`
 }
 
 type UsesSDK struct {
