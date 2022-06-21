@@ -5,6 +5,7 @@ type Manifest struct {
 	VersionCode     int32             `xml:"http://schemas.android.com/apk/res/android versionCode,attr"`
 	VersionName     string            `xml:"http://schemas.android.com/apk/res/android versionName,attr"`
 	Application     Application       `xml:"application"`
+	Queries         *[]Query          `xml:"queries"`
 	UsesPermissions *[]UsesPermission `xml:"uses-permission"`
 	UsesSDK         *UsesSDK          `xml:"uses-sdk"`
 }
@@ -130,6 +131,16 @@ type Provider struct {
 	WritePermission     *string         `xml:"http://schemas.android.com/apk/res/android writePermission,attr"`
 	MetaData            *[]MetaData     `xml:"meta-data"`
 	IntentFilters       *[]IntentFilter `xml:"intent-filter"`
+}
+
+type Query struct {
+	Packages  *[]Package      `xml:"package"`
+	Intents   *[]IntentFilter `xml:"intent"`
+	Providers *[]Provider     `xml:"provider"`
+}
+
+type Package struct {
+	Name string `xml:"http://schemas.android.com/apk/res/android name,attr"`
 }
 
 type UsesPermission struct {
