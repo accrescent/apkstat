@@ -6,6 +6,7 @@ type Manifest struct {
 	VersionName     string            `xml:"http://schemas.android.com/apk/res/android versionName,attr"`
 	Application     Application       `xml:"application"`
 	Queries         *[]Query          `xml:"queries"`
+	SupportsScreens *[]SupportsScreen `xml:"supports-screens"`
 	UsesPermissions *[]UsesPermission `xml:"uses-permission"`
 	UsesSDK         *UsesSDK          `xml:"uses-sdk"`
 }
@@ -141,6 +142,18 @@ type Query struct {
 
 type Package struct {
 	Name string `xml:"http://schemas.android.com/apk/res/android name,attr"`
+}
+
+type SupportsScreen struct {
+	Resizeable              *bool  `xml:"http://schemas.android.com/apk/res/android resizeable,attr"`
+	SmallScreens            *bool  `xml:"http://schemas.android.com/apk/res/android smallScreens,attr"`
+	NormalScreens           *bool  `xml:"http://schemas.android.com/apk/res/android normalScreens,attr"`
+	LargeScreens            *bool  `xml:"http://schemas.android.com/apk/res/android largeScreens,attr"`
+	XLargeScreens           *bool  `xml:"http://schemas.android.com/apk/res/android xlargeScreens,attr"`
+	AnyDensity              *bool  `xml:"http://schemas.android.com/apk/res/android anyDensity,attr"`
+	RequiresSmallestWidthDP *int32 `xml:"http://schemas.android.com/apk/res/android requiresSmallestWidthDp,attr"`
+	CompatibleWidthLimitDP  *int32 `xml:"http://schemas.android.com/apk/res/android compatibleWidthLimitDp,attr"`
+	LargestWidthLimitDP     *int32 `xml:"http://schemas.android.com/apk/res/android largestWidthLimitDp,attr"`
 }
 
 type UsesPermission struct {
