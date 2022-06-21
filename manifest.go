@@ -27,6 +27,7 @@ type Application struct {
 	Activities                   *[]Activity `xml:"activity"`
 	MetaData                     *[]MetaData `xml:"meta-data"`
 	Services                     *[]Service  `xml:"service"`
+	Receivers                    *[]Receiver `xml:"receiver"`
 }
 
 type Activity struct {
@@ -79,6 +80,16 @@ type Service struct {
 	Label           *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
 	Name            string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	Permission      *string         `xml:"http://schemas.android.com/apk/res/android permission,attr"`
+	IntentFilters   *[]IntentFilter `xml:"intent-filter"`
+	MetaData        *[]MetaData     `xml:"meta-data"`
+}
+
+type Receiver struct {
+	DirectBootAware *bool           `xml:"http://schemas.android.com/apk/res/android directBootAware,attr"`
+	Enabled         bool            `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
+	Exported        *bool           `xml:"http://schemas.android.com/apk/res/android exported,attr"`
+	Label           *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	Name            string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	IntentFilters   *[]IntentFilter `xml:"intent-filter"`
 	MetaData        *[]MetaData     `xml:"meta-data"`
 }
