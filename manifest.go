@@ -10,10 +10,20 @@ type Manifest struct {
 }
 
 type Application struct {
-	Debuggable           bool   `xml:"http://schemas.android.com/apk/res/android debuggable,attr"`
-	Label                string `xml:"http://schemas.android.com/apk/res/android label,attr"`
-	TestOnly             bool   `xml:"http://schemas.android.com/apk/res/android testOnly,attr"`
-	UsesCleartextTraffic bool   `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
+	AllowTaskReparenting         bool   `xml:"http://schemas.android.com/apk/res/android allowTaskReparenting,attr"`
+	AllowBackup                  bool   `xml:"http://schemas.android.com/apk/res/android allowBackup,attr"`
+	BackupAgent                  string `xml:"http://schemas.android.com/apk/res/android backupAgent,attr"`
+	BackupInForeground           bool   `xml:"http://schemas.android.com/apk/res/android backupInForeground,attr"`
+	DataExtractionRules          string `xml:"http://schemas.android.com/apk/res/android dataExtractionRules,attr"`
+	Debuggable                   bool   `xml:"http://schemas.android.com/apk/res/android debuggable,attr"`
+	Label                        string `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	ManageSpaceActivity          string `xml:"http://schemas.android.com/apk/res/android manageSpaceActivity,attr"`
+	Name                         string `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	NetworkSecurityConfig        string `xml:"http://schemas.android.com/apk/res/android networkSecurityConfig,attr"`
+	RequestLegacyExternalStorage bool   `xml:"http://schemas.android.com/apk/res/android requestLegacyExternalStorage,attr"`
+	SupportsRTL                  bool   `xml:"http://schemas.android.com/apk/res/android supportsRtl,attr"`
+	TestOnly                     bool   `xml:"http://schemas.android.com/apk/res/android testOnly,attr"`
+	UsesCleartextTraffic         bool   `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
 }
 
 type UsesPermission struct {
