@@ -29,6 +29,7 @@ type Application struct {
 	MetaData                     *[]MetaData      `xml:"meta-data"`
 	Services                     *[]Service       `xml:"service"`
 	Receivers                    *[]Receiver      `xml:"receiver"`
+	Profileable                  *Profileable     `xml:"profileable"`
 }
 
 type Activity struct {
@@ -104,6 +105,11 @@ type Receiver struct {
 	Name            string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	IntentFilters   *[]IntentFilter `xml:"intent-filter"`
 	MetaData        *[]MetaData     `xml:"meta-data"`
+}
+
+type Profileable struct {
+	Shell   *bool `xml:"http://schemas.android.com/apk/res/android shell,attr"`
+	Enabled *bool `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
 }
 
 type UsesPermission struct {
