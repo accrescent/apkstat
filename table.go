@@ -89,10 +89,16 @@ func (id resID) entry() int {
 	return int(id) & 0xFFFF
 }
 
+const sysPackageID = 0x01
+
 func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error) {
 	pkg := id.pkg()
 	type_ := id.type_()
 	entry := id.entry()
+
+	if pkg == sysPackageID {
+		return "", nil
+	}
 
 	p := f.packages[pkg]
 	if p == nil {
