@@ -30,6 +30,7 @@ type Application struct {
 	Services                     *[]Service       `xml:"service"`
 	Receivers                    *[]Receiver      `xml:"receiver"`
 	Profileable                  *Profileable     `xml:"profileable"`
+	Providers                    *[]Provider      `xml:"provider"`
 }
 
 type Activity struct {
@@ -110,6 +111,25 @@ type Receiver struct {
 type Profileable struct {
 	Shell   *bool `xml:"http://schemas.android.com/apk/res/android shell,attr"`
 	Enabled *bool `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
+}
+
+type Provider struct {
+	Authorities         string          `xml:"http://schemas.android.com/apk/res/android authorities,attr"`
+	Enabled             *bool           `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
+	DirectBootAware     *bool           `xml:"http://schemas.android.com/apk/res/android directBootAware,attr"`
+	Exported            bool            `xml:"http://schemas.android.com/apk/res/android exported,attr"`
+	GrantURIPermissions *bool           `xml:"http://schemas.android.com/apk/res/android grantUriPermissions,attr"`
+	InitOrder           *int32          `xml:"http://schemas.android.com/apk/res/android initOrder,attr"`
+	Lable               *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	MultiProcess        *bool           `xml:"http://schemas.android.com/apk/res/android multiprocess,attr"`
+	Name                string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	Permission          *string         `xml:"http://schemas.android.com/apk/res/android permission,attr"`
+	Process             *string         `xml:"http://schemas.android.com/apk/res/android process,attr"`
+	ReadPermission      *string         `xml:"http://schemas.android.com/apk/res/android readPermission,attr"`
+	Syncable            *bool           `xml:"http://schemas.android.com/apk/res/android syncable,attr"`
+	WritePermission     *string         `xml:"http://schemas.android.com/apk/res/android writePermission,attr"`
+	MetaData            *[]MetaData     `xml:"meta-data"`
+	IntentFilters       *[]IntentFilter `xml:"intent-filter"`
 }
 
 type UsesPermission struct {
