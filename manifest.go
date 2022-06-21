@@ -25,6 +25,7 @@ type Application struct {
 	TestOnly                     *bool       `xml:"http://schemas.android.com/apk/res/android testOnly,attr"`
 	UsesCleartextTraffic         *bool       `xml:"http://schemas.android.com/apk/res/android usesCleartextTraffic,attr"`
 	Activities                   *[]Activity `xml:"activity"`
+	Services                     *[]Service  `xml:"service"`
 }
 
 type Activity struct {
@@ -59,6 +60,18 @@ type Data struct {
 	PathPattern *string `xml:"http://schemas.android.com/apk/res/android pathPattern,attr"`
 	PathPrefix  *string `xml:"http://schemas.android.com/apk/res/android pathPrefix,attr"`
 	MimeType    *string `xml:"http://schemas.android.com/apk/res/android mimeType,attr"`
+}
+
+type Service struct {
+	Description     *string         `xml:"http://schemas.android.com/apk/res/android description,attr"`
+	DirectBootAware *bool           `xml:"http://schemas.android.com/apk/res/android directBootAware,attr"`
+	Enabled         *bool           `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
+	Exported        bool            `xml:"http://schemas.android.com/apk/res/android exported,attr"`
+	IsolatedProcess *bool           `xml:"http://schemas.android.com/apk/res/android isolatedProcess,attr"`
+	Label           *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	Name            string          `xml:"http://schemas.android.com/apk/res/android name,attr"`
+	Permission      *string         `xml:"http://schemas.android.com/apk/res/android permission,attr"`
+	IntentFilters   *[]IntentFilter `xml:"intent-filter"`
 }
 
 type UsesPermission struct {
