@@ -1,7 +1,7 @@
 // Package apk implements a parser for Android APKs.
 //
 // The APK type represents an APK file and is the API most users should use. You can open an APK
-// file with apk.Open.
+// file with apk.Open, or if you want more control over resource resolution, apk.OpenWithConfig.
 //
 // Most information about an APK is contained in its manifest. The Manifest() method will return an
 // APKs Manifest.
@@ -26,6 +26,13 @@ type APK struct {
 // app's Android manifest and resource table, resolving resource table references from the manifest
 // as necessary.
 func Open(name string) (*APK, error) {
+	return OpenWithConfig(name, nil)
+}
+
+// OpenWithConfig opns an APK an path name and returns a new APK if successful. It automatically
+// parses the app's Android manifest and resource table, using config to resolve resource tables
+// from the manifest as necessary.
+func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 	z, err := zip.OpenReader(name)
 	if err != nil {
 		return nil, err
@@ -55,7 +62,7 @@ func Open(name string) (*APK, error) {
 	if err != nil {
 		return nil, err
 	}
-	xmlFile, err := NewXMLFile(bytes.NewReader(rawManifestBytes), table, nil)
+	xmlFile, err := NewXMLFile(bytes.NewReader(rawManifestBytes), table, config)
 	if err != nil {
 		return nil, err
 	}
