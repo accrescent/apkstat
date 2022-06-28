@@ -22,7 +22,7 @@ type APK struct {
 	zipReader *zip.ReadCloser
 	config    *ResTableConfig
 	table     *ResTable
-	manifest  Manifest
+	manifest  *Manifest
 }
 
 // Open opens an APK at path name and returns a new APK if successful. It automatically parses the
@@ -36,12 +36,16 @@ func Open(name string) (*APK, error) {
 // parses the app's Android manifest and resource table, using config to resolve resource tables
 // from the manifest as necessary.
 func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
+	apk := new(APK)
+	apk.config = config
+
 	z, err := zip.OpenReader(name)
 	if err != nil {
 		return nil, err
 	}
+	apk.zipReader = z
 
-	rawTable, err := z.Open("resources.arsc")
+	rawTable, err := apk.zipReader.Open("resources.arsc")
 	if err != nil {
 		return nil, err
 	}
@@ -54,17 +58,9 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 	if err != nil {
 		return nil, err
 	}
+	apk.table = table
 
-	rawManifest, err := z.Open("AndroidManifest.xml")
-	if err != nil {
-		return nil, err
-	}
-	defer rawManifest.Close()
-	rawManifestBytes, err := io.ReadAll(rawManifest)
-	if err != nil {
-		return nil, err
-	}
-	xmlFile, err := NewXMLFile(bytes.NewReader(rawManifestBytes), table, config)
+	xmlFile, err := apk.OpenXML("AndroidManifest.xml")
 	if err != nil {
 		return nil, err
 	}
@@ -73,12 +69,7 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 	if err := xml.Unmarshal([]byte(xmlFile.String()), &manifest); err != nil {
 		return nil, err
 	}
-
-	apk := new(APK)
-	apk.zipReader = z
-	apk.config = config
-	apk.table = table
-	apk.manifest = manifest
+	*apk.manifest = manifest
 
 	return apk, nil
 }
@@ -106,7 +97,7 @@ func (a *APK) OpenXML(name string) (*XMLFile, error) {
 
 // Manifest returns an APK's Manifest.
 func (a *APK) Manifest() Manifest {
-	return a.manifest
+	return *a.manifest
 }
 
 func (a *APK) Close() error {
