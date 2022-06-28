@@ -10,38 +10,34 @@ import (
 )
 
 func main() {
-	apkFlag := flag.String("apk", "", "APK to print manifest of")
-	xmlFlag := flag.String("xml", "", "binary XML to print as text")
+	apkFlag := flag.String("apk", "", "APK to print binary XML from")
+	xmlFlag := flag.String("xml", "", "binary XML file to print (Android manifest is default)")
 	flag.Parse()
 
-	if *apkFlag == "" && *xmlFlag == "" || *apkFlag != "" && *xmlFlag != "" {
-		fatal("must supply either APK or binary XML")
+	if *apkFlag == "" {
+		fatal("must supply APK parameter")
 	}
 
-	if *apkFlag != "" {
-		apk, err := apk.Open(*apkFlag)
+	apk, err := apk.Open(*apkFlag)
+	if err != nil {
+		fatal(err.Error())
+	}
+	defer apk.Close()
+
+	if *xmlFlag != "" {
+		xmlFile, err := apk.OpenXML(*xmlFlag)
 		if err != nil {
 			fatal(err.Error())
 		}
-		defer apk.Close()
 
+		fmt.Println(xmlFile.String())
+	} else {
 		enc := xml.NewEncoder(os.Stdout)
 		enc.Indent("", "    ")
 		if err := enc.Encode(apk.Manifest()); err != nil {
 			fatal(err.Error())
 		}
 		fmt.Println()
-	} else {
-		file, err := os.Open(*xmlFlag)
-		if err != nil {
-			fatal(err.Error())
-		}
-		xmlFile, err := apk.NewXMLFile(file, nil, nil)
-		if err != nil {
-			fatal(err.Error())
-		}
-
-		fmt.Println(xmlFile.String())
 	}
 }
 

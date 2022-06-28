@@ -11,12 +11,14 @@ An APK parsing tool and library for Go.
 ```
 Usage of apkstat:
   -apk string
-        APK to print manifest of
+        APK to print binary XML from
   -xml string
-        binary XML to print as text
+        binary XML file to print (Android manifest is default)
 ```
 
-Either `-apk` or `-xml` must be specified.
+`-apk` must be specified. If `-xml` is specified, apkstat will attempt to print
+that file in the APK ZIP hierarchy. If it isn't, apkstat will pretty print the
+Android manifest.
 
 ### Library
 
