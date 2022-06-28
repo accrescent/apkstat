@@ -1,6 +1,7 @@
 package apk
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -986,6 +987,39 @@ func (c ResTableConfig) match(settings *ResTableConfig) bool {
 	if c.Language != [2]uint8{0, 0} {
 		if !langsAreEquivalent(c.Language, settings.Language) {
 			return false
+		}
+
+		// For backward compatibility and supporting private-use locales, we fall back to
+		// old behavior if we couldn't determine the script for either of the desired locale
+		// or the provided locale. But if if we could determine the scripts, they should be
+		// the same for the locales to match.
+		countriesMustMatch := false
+		computedScript := [4]uint8{}
+		script := []uint8{}
+		if settings.LocaleScript[0] == 0 { // could not determine the request's script
+			countriesMustMatch = true
+		} else {
+			if c.LocaleScript[0] == 0 && !c.LocaleScriptWasComputed {
+				// script was not provided or computed, so we try to compute it
+				localeDataComputeScript(&computedScript, c.Language[:], c.Country[:])
+				if computedScript[0] == 0 { // we could not compute the script
+					countriesMustMatch = true
+				} else {
+					script = computedScript[:]
+				}
+			} else { // script was provided, so just use it
+				script = c.LocaleScript[:]
+			}
+		}
+
+		if countriesMustMatch {
+			if c.Country[0] == 0 && c.Country != settings.Country {
+				return false
+			}
+		} else {
+			if !bytes.Equal(script, settings.LocaleScript[:]) {
+				return false
+			}
 		}
 	}
 

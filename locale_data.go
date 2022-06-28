@@ -200,6 +200,35 @@ func localeDataCompareRegions(
 	return int(right - left)
 }
 
+func localeDataComputeScript(out *[4]uint8, language []uint8, region []uint8) {
+	likelyScripts := likelyScripts()
+	scriptCodes := scriptCodes()
+
+	if language[0] == 0 {
+		*out = [scriptLength]uint8{}
+		return
+	}
+	lookupKey := packLocale(*(*[2]uint8)(language), *(*[2]uint8)(region))
+	lookupResult, ok := likelyScripts[lookupKey]
+	if !ok {
+		// We couldn't find the locale. Let's try without the region.
+		if region[0] != 0 {
+			lookupKey = dropRegion(lookupKey)
+			lookupResult, ok = likelyScripts[lookupKey]
+			if ok {
+				*out = scriptCodes[lookupResult]
+				return
+			}
+		}
+		// We don't know anything about the locale.
+		*out = [scriptLength]uint8{}
+		return
+	} else {
+		// We found the locale.
+		*out = scriptCodes[lookupResult]
+	}
+}
+
 func englishStopList() [2]uint32 {
 	return [2]uint32{
 		0x656E0000, // en
