@@ -16,7 +16,7 @@ func main() {
 	xmlResFlag := flag.String(
 		"xmlres",
 		"",
-		"well-known XML resource to print. Must be one of 'network-security'",
+		"well-known XML resource to print. Must be one of 'network-security' or 'extraction-rules'",
 	)
 	flag.Parse()
 
@@ -45,6 +45,24 @@ func main() {
 	} else if *xmlResFlag != "" {
 		manifest := apk.Manifest()
 		switch *xmlResFlag {
+		case "extraction-rules":
+			xmlRes := manifest.Application.DataExtractionRules
+			if xmlRes == nil {
+				fatal("data extraction rules not present")
+			} else {
+				xmlFile, err := apk.OpenXML(*xmlRes)
+				if err != nil {
+					fatal(err.Error())
+				}
+
+				var extractionRules schemas.DataExtractionRules
+				if err := xml.Unmarshal([]byte(xmlFile.String()), &extractionRules); err != nil {
+					fatal(err.Error())
+				}
+				if err := enc.Encode(extractionRules); err != nil {
+					fatal(err.Error())
+				}
+			}
 		case "network-security":
 			xmlRes := manifest.Application.NetworkSecurityConfig
 			if xmlRes == nil {
