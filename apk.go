@@ -1,3 +1,13 @@
+// Package apk implements a parser for Android APKs.
+//
+// The APK type represents an APK file and is the API most users should use. You can open an APK
+// file with apk.Open.
+//
+// Most information about an APK is contained in its manifest. The Manifest() method will return an
+// APKs Manifest.
+//
+// BUG(lberrymage): Some resource table references in binary XML are incorrectly parsed as empty
+// strings.
 package apk
 
 import (
