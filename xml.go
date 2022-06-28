@@ -222,7 +222,7 @@ func (f *XMLFile) parseXMLEndElement(sr *io.SectionReader) error {
 // XML attribute prefixed with the namespace if the namespace string pool reference is not empty.
 func (f *XMLFile) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
 	if ns.Index == 0xFFFFFFFF {
-		return fmt.Sprintf("%s", f.stringPool[name])
+		return f.stringPool[name]
 	} else {
 		return fmt.Sprintf("%s:%s", f.stringPool[f.namespaces[ns]], f.stringPool[name])
 	}
