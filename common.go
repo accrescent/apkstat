@@ -15,54 +15,32 @@ type resChunkHeader struct {
 }
 
 const (
-	resNullType       = 0x0
 	resStringPoolType = 0x1
 	resTableChunkType = 0x2
 	resXMLType        = 0x3
 
-	resXMLFirstChunkType     = 0x100
 	resXMLStartNamespaceType = 0x100
 	resXMLEndNamespaceType   = 0x101
 	resXMLStartElementType   = 0x102
 	resXMLEndElementType     = 0x103
-	resXMLCDataType          = 0x104
-	resXMLLastChunkType      = 0x17f
 	resXMLResourceMapType    = 0x180
 
-	resTablePackageType           = 0x200
-	resTableTypeType              = 0x201
-	resTableTypeSpecType          = 0x202
-	resTableLibraryType           = 0x203
-	resTableOverlayableType       = 0x204
-	resTableOverlayablePolicyType = 0x205
-	resTableStagedAliasType       = 0x206
+	resTablePackageType  = 0x200
+	resTableTypeType     = 0x201
+	resTableTypeSpecType = 0x202
 )
 
 type dataType = uint8
 
 const (
-	typeNull             dataType = 0x00
-	typeReference        dataType = 0x01
-	typeAttribute        dataType = 0x02
-	typeString           dataType = 0x03
-	typeFloat            dataType = 0x04
-	typeDimension        dataType = 0x05
-	typeFraction         dataType = 0x06
-	typeDynamicReference dataType = 0x07
-	typeDynamicAttribute dataType = 0x08
+	typeNull      dataType = 0x00
+	typeReference dataType = 0x01
+	typeString    dataType = 0x03
+	typeFloat     dataType = 0x04
 
-	typeFirstInt   dataType = 0x10
 	typeIntDec     dataType = 0x10
 	typeIntHex     dataType = 0x11
 	typeIntBoolean dataType = 0x12
-
-	typeFirstColorInt dataType = 0x1c
-	typeIntColorARGB8 dataType = 0x1c
-	typeIntColorRGB8  dataType = 0x1d
-	typeIntColorARGB4 dataType = 0x1e
-	typeIntColorRGB4  dataType = 0x1f
-	typeLastColorInt  dataType = 0x1f
-	typeLastInt       dataType = 0x1f
 )
 
 type resValue struct {
@@ -78,10 +56,7 @@ type resStringPoolRef struct {
 
 type flags uint32
 
-const (
-	sortedFlag flags = 1 << 0
-	utf8Flag   flags = 1 << 8
-)
+const utf8Flag flags = 1 << 8
 
 type resStringPoolHeader struct {
 	Header       resChunkHeader
@@ -203,9 +178,4 @@ func parseVar16Len(sr *io.SectionReader) (int, error) {
 	}
 
 	return size, nil
-}
-
-type resStringPoolSpan struct {
-	name                resStringPoolRef
-	FirstChar, LastChar uint32
 }
