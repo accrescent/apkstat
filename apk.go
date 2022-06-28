@@ -102,6 +102,11 @@ func (a *APK) OpenXMLWithConfig(name string, config *ResTableConfig) (*XMLFile, 
 	return xmlFile, nil
 }
 
+// SetConfig sets the APK's ResTableConfig for future operations.
+func (a *APK) SetConfig(config *ResTableConfig) {
+	a.config = config
+}
+
 // Manifest returns an APK's Manifest.
 func (a *APK) Manifest() Manifest {
 	return *a.manifest
