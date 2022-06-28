@@ -21,7 +21,7 @@ func findParent(packedLocale uint32, script []uint8) uint32 {
 		for i := 0; i < scriptParentsCount; i++ {
 			// The joys of using Go.
 			// https://github.com/golang/go/issues/46505
-			if *(*[4]uint8)(script) == scriptParents()[i].script {
+			if *(*[scriptLength]uint8)(script) == scriptParents()[i].script {
 				map_ := scriptParents()[i].map_
 				lookupResult, exists := map_[packedLocale]
 				if exists {
