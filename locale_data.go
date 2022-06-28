@@ -43,9 +43,11 @@ func findParent(packedLocale uint32, script []uint8) uint32 {
 // which will be -1 if it is not found in stopList.
 //
 // Returns the number of ancestors written in the output, which is always at least one.
-func findAncestors(out []uint32, stopListIndex *int,
+func findAncestors(
+	out []uint32, stopListIndex *int,
 	packedLocale uint32, script []uint8,
-	stopList []uint32, stopSetLength int) int {
+	stopList []uint32, stopSetLength int,
+) int {
 	ancestor := packedLocale
 	var count int
 	for {
@@ -70,7 +72,12 @@ func findAncestors(out []uint32, stopListIndex *int,
 	return count
 }
 
-func findDistance(supported uint32, script []uint8, requestAncestors []uint32, requestAncestorsCount int) int {
+func findDistance(
+	supported uint32,
+	script []uint8,
+	requestAncestors []uint32,
+	requestAncestorsCount int,
+) int {
 	var requestAncestorsIndex int
 	supportedAncestorCount := findAncestors(
 		nil,
