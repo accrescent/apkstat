@@ -78,6 +78,13 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 // a resource table config was specified when opening the APK with apk.OpenWithConfig, it will be
 // used.
 func (a *APK) OpenXML(name string) (*XMLFile, error) {
+	return a.OpenXMLWithConfig(name, nil)
+}
+
+// OpenXMLWithConfig is like OpenXML, but allows for specifying a ResTableConfig after opening the
+// APK. It overrides the APK's ResTableConfig for this function call but doesn't modify the APK's
+// ResTableConfig that was specified at open time.
+func (a *APK) OpenXMLWithConfig(name string, config *ResTableConfig) (*XMLFile, error) {
 	rawXML, err := a.zipReader.Open(name)
 	if err != nil {
 		return nil, err
@@ -87,7 +94,7 @@ func (a *APK) OpenXML(name string) (*XMLFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	xmlFile, err := NewXMLFile(bytes.NewReader(rawXMLBytes), a.table, a.config)
+	xmlFile, err := NewXMLFile(bytes.NewReader(rawXMLBytes), a.table, config)
 	if err != nil {
 		return nil, err
 	}
