@@ -45,6 +45,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer apk.Close()
 
 	manifest := apk.Manifest()
 
