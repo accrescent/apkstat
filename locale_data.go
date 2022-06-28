@@ -12,9 +12,11 @@ func hasRegion(packedLocale uint32) bool {
 	return packedLocale&0x0000FFFF != 0
 }
 
-const scriptLength = 4
-const scriptParentsCount = 5
-const packedRoot = 0 // to represent the root locale
+const (
+	scriptLength       = 4
+	scriptParentsCount = 5
+	packedRoot         = 0 // to represent the root locale
+)
 
 func findParent(packedLocale uint32, script []uint8) uint32 {
 	if hasRegion(packedLocale) {
@@ -106,9 +108,11 @@ func isRepresentative(languageAndRegion uint32, script []uint8) bool {
 	return exists
 }
 
-const usSpanish = 0x65735553            // es-US
-const mexicanSpanish = 0x65734D58       // es-MX
-const latinAmericanSpanish = 0x6573A424 // es-419
+const (
+	usSpanish            = 0x65735553 // es-US
+	mexicanSpanish       = 0x65734D58 // es-MX
+	latinAmericanSpanish = 0x6573A424 // es-419
+)
 
 // isSpecialSpanish returns whether the locale is a special fallback for es-419. es-US and es-MX are
 // considered its equivalent if there is no es-419.
