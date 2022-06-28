@@ -58,9 +58,13 @@ func NewResTable(r io.ReaderAt) (*ResTable, error) {
 		var err error
 		switch chunk.Type {
 		case resStringPoolType:
-			f.stringPool, err = parseStringPool(io.NewSectionReader(sr, offset, maxReadBytes))
+			f.stringPool, err = parseStringPool(io.NewSectionReader(
+				sr,
+				offset,
+				maxReadBytes-offset,
+			))
 		case resTablePackageType:
-			err = f.parseTablePackage(io.NewSectionReader(sr, offset, maxReadBytes))
+			err = f.parseTablePackage(io.NewSectionReader(sr, offset, maxReadBytes-offset))
 		default:
 			return nil, InvalidChunkType
 		}
@@ -163,14 +167,22 @@ func (f *ResTable) parseTablePackage(sr *io.SectionReader) error {
 		return err
 	}
 
-	typeSR := io.NewSectionReader(sr, int64(header.TypeStrings), maxReadBytes)
+	typeSR := io.NewSectionReader(
+		sr,
+		int64(header.TypeStrings),
+		int64(header.Header.Size-header.TypeStrings),
+	)
 	if typeStrings, err := parseStringPool(typeSR); err != nil {
 		return err
 	} else {
 		pkg.typeStrings = typeStrings
 	}
 
-	keySR := io.NewSectionReader(sr, int64(header.KeyStrings), maxReadBytes)
+	keySR := io.NewSectionReader(
+		sr,
+		int64(header.KeyStrings),
+		int64(header.Header.Size-header.KeyStrings),
+	)
 	if keyStrings, err := parseStringPool(keySR); err != nil {
 		return err
 	} else {
@@ -196,7 +208,7 @@ func (f *ResTable) parseTablePackage(sr *io.SectionReader) error {
 		case resStringPoolType: // skip typestrings and keystrings
 		case resTableTypeType:
 			var tt *tableType
-			tt, err = f.parseTableType(io.NewSectionReader(sr, offset, maxReadBytes))
+			tt, err = f.parseTableType(io.NewSectionReader(sr, offset, int64(chunk.Size)))
 			pkg.tableTypes = append(pkg.tableTypes, tt)
 		case resTableTypeSpecType:
 			// unimplemented

@@ -50,7 +50,11 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 		var err error
 		switch chunk.Type {
 		case resStringPoolType:
-			f.stringPool, err = parseStringPool(io.NewSectionReader(sr, offset, maxReadBytes))
+			f.stringPool, err = parseStringPool(io.NewSectionReader(
+				sr,
+				offset,
+				maxReadBytes-offset,
+			))
 		case resXMLResourceMapType:
 		case resXMLStartNamespaceType:
 			err = f.parseStartNamespace(sr)
