@@ -96,6 +96,13 @@ func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error)
 	type_ := id.type_()
 	entry := id.entry()
 
+	if pkg < 0 {
+		return "", errors.New("bad index")
+	}
+	if type_ < 0 {
+		return "", errors.New("bad index")
+	}
+
 	if pkg == sysPackageID {
 		return "", nil
 	}
