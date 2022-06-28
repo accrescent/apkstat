@@ -664,11 +664,11 @@ func (c ResTableConfig) isLocaleBetterThan(o, r *ResTableConfig) bool {
 					return !(o.Country[0] == 0 || o.Country == unitedStates())
 				}
 			}
-		} else if localeDataIsCloseToUSEnglish(r.Country) {
+		} else if localeDataIsCloseToUSEnglish(r.Country[:]) {
 			if c.Language[0] != 0 {
-				return localeDataIsCloseToUSEnglish(c.Country)
+				return localeDataIsCloseToUSEnglish(c.Country[:])
 			} else {
-				return !localeDataIsCloseToUSEnglish(o.Country)
+				return !localeDataIsCloseToUSEnglish(o.Country[:])
 			}
 		}
 		return c.Language[0] != 0

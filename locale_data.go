@@ -1,6 +1,6 @@
 package apk
 
-func packLocale(lang [2]uint8, region [2]uint8) uint32 {
+func packLocale(lang []uint8, region []uint8) uint32 {
 	return uint32(lang[0])<<24 | uint32(lang[1])<<16 | uint32(region[0])<<8 | uint32(region[1])
 }
 
@@ -46,7 +46,7 @@ func findParent(packedLocale uint32, script []uint8) uint32 {
 //
 // Returns the number of ancestors written in the output, which is always at least one.
 func findAncestors(
-	out []uint32, stopListIndex *int,
+	out *[]uint32, stopListIndex *int,
 	packedLocale uint32, script []uint8,
 	stopList []uint32, stopSetLength int,
 ) int {
@@ -54,7 +54,7 @@ func findAncestors(
 	var count int
 	for {
 		if out != nil {
-			out[count] = ancestor
+			(*out)[count] = ancestor
 		}
 		count++
 		for i := 0; i < stopSetLength; i++ {
@@ -130,9 +130,9 @@ func localeDataCompareRegions(
 	if leftRegion[0] == rightRegion[0] && leftRegion[1] == rightRegion[1] {
 		return 0
 	}
-	left := packLocale(*(*[2]uint8)(requestedLanguage), *(*[2]uint8)(leftRegion))
-	right := packLocale(*(*[2]uint8)(requestedLanguage), *(*[2]uint8)(rightRegion))
-	request := packLocale(*(*[2]uint8)(requestedLanguage), *(*[2]uint8)(requestedRegion))
+	left := packLocale(requestedLanguage, leftRegion)
+	right := packLocale(requestedLanguage, rightRegion)
+	request := packLocale(requestedLanguage, requestedRegion)
 
 	// If one and only one of the two locales is a special Spanish locale, we replace it with
 	// es-419. We don't do the replacement if the other locale is already es-419, or both
@@ -146,11 +146,12 @@ func localeDataCompareRegions(
 	}
 
 	var requestAncestors [maxParentDepth + 1]uint32
+	requestAncestorsSlice := requestAncestors[:]
 	var leftRightIndex int
 	// Find the parents of the request, but stop as soon as we saw left or right.
 	leftAndRight := [2]uint32{left, right}
 	ancestorCount := findAncestors(
-		requestAncestors[:],
+		&requestAncestorsSlice,
 		&leftRightIndex,
 		request,
 		requestedScript,
@@ -208,7 +209,7 @@ func localeDataComputeScript(out *[4]uint8, language []uint8, region []uint8) {
 		*out = [scriptLength]uint8{}
 		return
 	}
-	lookupKey := packLocale(*(*[2]uint8)(language), *(*[2]uint8)(region))
+	lookupKey := packLocale(language, region)
 	lookupResult, ok := likelyScripts[lookupKey]
 	if !ok {
 		// We couldn't find the locale. Let's try without the region.
@@ -244,11 +245,12 @@ func latinChars() [4]uint8 {
 	return [4]uint8{'L', 'a', 't', 'n'}
 }
 
-func localeDataIsCloseToUSEnglish(region [2]uint8) bool {
+func localeDataIsCloseToUSEnglish(region []uint8) bool {
+	englishChars := englishChars()
 	latinChars := latinChars()
 	englishStopList := englishStopList()
 
-	locale := packLocale(englishChars(), region)
+	locale := packLocale(englishChars[:], region)
 	var stopListIndex int
 	findAncestors(nil, &stopListIndex, locale, latinChars[:], englishStopList[:], 2)
 
