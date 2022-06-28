@@ -19,7 +19,10 @@ import (
 
 // APK is a representation of an Android APK file.
 type APK struct {
-	manifest Manifest
+	zipReader *zip.ReadCloser
+	config    *ResTableConfig
+	table     *ResTable
+	manifest  Manifest
 }
 
 // Open opens an APK at path name and returns a new APK if successful. It automatically parses the
@@ -37,7 +40,6 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer z.Close()
 
 	rawTable, err := z.Open("resources.arsc")
 	if err != nil {
@@ -73,12 +75,40 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 	}
 
 	apk := new(APK)
+	apk.zipReader = z
+	apk.config = config
+	apk.table = table
 	apk.manifest = manifest
 
 	return apk, nil
 }
 
+// OpenXML is a utility function for opening an arbitrary Android binary XML file within an APK. If
+// a resource table config was specified when opening the APK with apk.OpenWithConfig, it will be
+// used.
+func (a *APK) OpenXML(name string) (*XMLFile, error) {
+	rawXML, err := a.zipReader.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	defer rawXML.Close()
+	rawXMLBytes, err := io.ReadAll(rawXML)
+	if err != nil {
+		return nil, err
+	}
+	xmlFile, err := NewXMLFile(bytes.NewReader(rawXMLBytes), a.table, a.config)
+	if err != nil {
+		return nil, err
+	}
+
+	return xmlFile, nil
+}
+
 // Manifest returns an APK's Manifest.
 func (a *APK) Manifest() Manifest {
 	return a.manifest
+}
+
+func (a *APK) Close() error {
+	return a.zipReader.Close()
 }
