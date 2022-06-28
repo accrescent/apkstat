@@ -4,7 +4,7 @@
 // file with apk.Open, or if you want more control over resource resolution, apk.OpenWithConfig.
 //
 // Most information about an APK is contained in its manifest. The Manifest() method will return an
-// APKs Manifest.
+// APK's Manifest.
 //
 // BUG(lberrymage): Some resource table references in binary XML are incorrectly parsed as empty
 // strings.
@@ -78,7 +78,7 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 	return apk, nil
 }
 
-// Manifest returns an APKs Manifest.
+// Manifest returns an APK's Manifest.
 func (a *APK) Manifest() Manifest {
 	return a.manifest
 }
