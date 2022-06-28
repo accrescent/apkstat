@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// XMLFile is a representation of an Android binary XML file.
 type XMLFile struct {
 	stringPool map[resStringPoolRef]string
 	nsToPrefix map[resStringPoolRef]resStringPoolRef
@@ -17,6 +18,9 @@ type XMLFile struct {
 	cfg        *ResTableConfig
 }
 
+// NewXMLFile creates a new XMLFile instance from a reader of Android binary XML. If t is provided,
+// resource table references will be followed as necessary. If t is nil, references will be replaced
+// with a hexadecimal resource ID in the XML text accessible by calling String().
 func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, error) {
 	f := new(XMLFile)
 	f.table = t
@@ -77,6 +81,8 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 	return f, nil
 }
 
+// String prints the XMLFile's raw XML as text. It does not resolve resource table references or
+// perform any prettification
 func (f *XMLFile) String() string {
 	return f.xml.String()
 }

@@ -6,6 +6,8 @@ import (
 	"io"
 )
 
+// ResTable is a representation of an Android resource table. It can be referenced from XMLFile
+// attributes to resolve resource table references.
 type ResTable struct {
 	stringPool map[resStringPoolRef]string
 	packages   map[uint32]*tablePackage
@@ -27,6 +29,7 @@ type tableEntry struct {
 	value resValue
 }
 
+// NewResTable creates a new ResTable instance from a reader of an Android resource table.
 func NewResTable(r io.ReaderAt) (*ResTable, error) {
 	f := new(ResTable)
 
@@ -309,6 +312,7 @@ const (
 	maskHDR            = 0x0c
 )
 
+// ResTableConfig describes a particular resource configuration.
 type ResTableConfig struct {
 	Size                    uint32
 	MCC                     uint16

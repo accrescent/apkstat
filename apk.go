@@ -7,10 +7,14 @@ import (
 	"io"
 )
 
+// APK is a representation of an Android APK file.
 type APK struct {
 	manifest Manifest
 }
 
+// Open opens an APK at path name and returns a new APK if successful. It automatically parses the
+// app's Android manifest and resource table, resolving resource table references from the manifest
+// as necessary.
 func Open(name string) (*APK, error) {
 	z, err := zip.OpenReader(name)
 	if err != nil {
@@ -57,6 +61,7 @@ func Open(name string) (*APK, error) {
 	return apk, nil
 }
 
+// Manifest returns an APKs Manifest.
 func (a *APK) Manifest() Manifest {
 	return a.manifest
 }

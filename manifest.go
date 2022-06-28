@@ -1,5 +1,6 @@
 package apk
 
+// Manifest is the root element of an AndroidManifest.xml file.
 type Manifest struct {
 	Package         string            `xml:"package,attr"`
 	VersionCode     int32             `xml:"http://schemas.android.com/apk/res/android versionCode,attr"`
@@ -11,6 +12,7 @@ type Manifest struct {
 	UsesSDK         *UsesSDK          `xml:"uses-sdk"`
 }
 
+// Application is a declaration of an application.
 type Application struct {
 	AllowTaskReparenting         *bool            `xml:"http://schemas.android.com/apk/res/android allowTaskReparenting,attr"`
 	AllowBackup                  *bool            `xml:"http://schemas.android.com/apk/res/android allowBackup,attr"`
@@ -35,6 +37,7 @@ type Application struct {
 	Providers                    *[]Provider      `xml:"provider"`
 }
 
+// Activity is an activity that implements part of an application's visual user interface.
 type Activity struct {
 	Exported      *string         `xml:"http://schemas.android.com/apk/res/android exported,attr"`
 	Label         *string         `xml:"http://schemas.android.com/apk/res/android label,attr"`
@@ -43,6 +46,8 @@ type Activity struct {
 	MetaData      *[]MetaData     `xml:"meta-data"`
 }
 
+// IntentFilter specifies the types of intents that an activity, service, or broadcast receiver can
+// respond to.
 type IntentFilter struct {
 	Priority   *uint32     `xml:"http://schemas.android.com/apk/res/android priority,attr"`
 	Order      *int32      `xml:"http://schemas.android.com/apk/res/android order,attr"`
@@ -52,14 +57,18 @@ type IntentFilter struct {
 	Data       *[]Data     `xml:"data"`
 }
 
+// Action adds an action to an intent filter.
 type Action struct {
 	Name string `xml:"http://schemas.android.com/apk/res/android name,attr"`
 }
 
+// Category adds a category name to an intent filter.
 type Category struct {
 	Name string `xml:"http://schemas.android.com/apk/res/android name,attr"`
 }
 
+// Data adds a data specification to an intent filter. A specification can be just a data type, just
+// a URI, or both a data type and a URI.
 type Data struct {
 	Scheme      *string `xml:"http://schemas.android.com/apk/res/android scheme,attr"`
 	Host        *string `xml:"http://schemas.android.com/apk/res/android host,attr"`
@@ -70,12 +79,15 @@ type Data struct {
 	MimeType    *string `xml:"http://schemas.android.com/apk/res/android mimeType,attr"`
 }
 
+// MetaData is a name-value pair for an item of additional, arbitrary data that can be supplied to
+// the parent component. A component element can contain any number of MetaData subelements.
 type MetaData struct {
 	Name     string  `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	Resource *string `xml:"http://schemas.android.com/apk/res/android resource,attr"`
 	Value    *string `xml:"http://schemas.android.com/apk/res/android value,attr"`
 }
 
+// ActivityAlias is an alias for an activity named by the TargetActivity attribute.
 type ActivityAlias struct {
 	Enabled        *bool           `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
 	Exported       bool            `xml:"http://schemas.android.com/apk/res/android exported,attr"`
@@ -87,6 +99,7 @@ type ActivityAlias struct {
 	MetaData       *[]MetaData     `xml:"meta-data"`
 }
 
+// Service declares a service as one of the application's components.
 type Service struct {
 	Description     *string         `xml:"http://schemas.android.com/apk/res/android description,attr"`
 	DirectBootAware *bool           `xml:"http://schemas.android.com/apk/res/android directBootAware,attr"`
@@ -100,6 +113,7 @@ type Service struct {
 	MetaData        *[]MetaData     `xml:"meta-data"`
 }
 
+// Receiver declares a broadcast receiver as one of the application's components.
 type Receiver struct {
 	DirectBootAware *bool           `xml:"http://schemas.android.com/apk/res/android directBootAware,attr"`
 	Enabled         bool            `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
@@ -110,11 +124,14 @@ type Receiver struct {
 	MetaData        *[]MetaData     `xml:"meta-data"`
 }
 
+// Profileable specifies how profilies can access the application.
 type Profileable struct {
 	Shell   *bool `xml:"http://schemas.android.com/apk/res/android shell,attr"`
 	Enabled *bool `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
 }
 
+// Provider declares a content provider component which supplies structured access to data managed
+// by the application.
 type Provider struct {
 	Authorities         string          `xml:"http://schemas.android.com/apk/res/android authorities,attr"`
 	Enabled             *bool           `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
@@ -134,16 +151,22 @@ type Provider struct {
 	IntentFilters       *[]IntentFilter `xml:"intent-filter"`
 }
 
+// Query specifies the set of other apps that an app intends to interact with. These other apps can
+// be specified by package name, by intent signature, or by provider authority.
 type Query struct {
 	Packages  *[]Package      `xml:"package"`
 	Intents   *[]IntentFilter `xml:"intent"`
 	Providers *[]Provider     `xml:"provider"`
 }
 
+// Package specifies a single app that an app intends to access. This other app might integrate with
+// said app, or said app might use services the other app provides.
 type Package struct {
 	Name string `xml:"http://schemas.android.com/apk/res/android name,attr"`
 }
 
+// SupportsScreen specifies the screen sizes an application supports and whether screen
+// compatibility mode is enabled for screens larger than what the application supports.
 type SupportsScreen struct {
 	Resizeable              *bool  `xml:"http://schemas.android.com/apk/res/android resizeable,attr"`
 	SmallScreens            *bool  `xml:"http://schemas.android.com/apk/res/android smallScreens,attr"`
@@ -156,11 +179,15 @@ type SupportsScreen struct {
 	LargestWidthLimitDP     *int32 `xml:"http://schemas.android.com/apk/res/android largestWidthLimitDp,attr"`
 }
 
+// UsesPermission specifies a system permission that the user must grant for the application to
+// operate correctly.
 type UsesPermission struct {
 	Name          string `xml:"http://schemas.android.com/apk/res/android name,attr"`
 	MaxSDKVersion *int32 `xml:"http://schemas.android.com/apk/res/android maxSdkVersion,attr"`
 }
 
+// UsesSDK is an expression of an application's compatibility with one or more versions of the
+// Android platform by means of an API level integer.
 type UsesSDK struct {
 	MinSDKVersion    *uint `xml:"http://schemas.android.com/apk/res/android minSdkVersion,attr"`
 	TargetSDKVersion *uint `xml:"http://schemas.android.com/apk/res/android targetSdkVersion,attr"`
