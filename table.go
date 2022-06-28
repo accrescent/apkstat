@@ -2,7 +2,6 @@ package apk
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 )
@@ -37,7 +36,7 @@ func NewResTable(r io.ReaderAt) (*ResTable, error) {
 		return nil, err
 	}
 	if header.Header.Type != resTableChunkType {
-		return nil, errors.New("malformed header")
+		return nil, MalformedHeader
 	}
 
 	f.packages = make(map[uint32]*tablePackage)
@@ -63,7 +62,7 @@ func NewResTable(r io.ReaderAt) (*ResTable, error) {
 		case resTablePackageType:
 			err = f.parseTablePackage(io.NewSectionReader(sr, offset, maxReadBytes))
 		default:
-			return nil, errors.New("encountered invalid chunk type")
+			return nil, InvalidChunkType
 		}
 		if err != nil {
 			return nil, err
@@ -97,10 +96,10 @@ func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error)
 	entry := id.entry()
 
 	if pkg < 0 {
-		return "", errors.New("bad index")
+		return "", BadIndex
 	}
 	if type_ < 0 {
-		return "", errors.New("bad index")
+		return "", BadIndex
 	}
 
 	if pkg == sysPackageID {
@@ -202,7 +201,7 @@ func (f *ResTable) parseTablePackage(sr *io.SectionReader) error {
 		case resTableTypeSpecType:
 			// unimplemented
 		default:
-			return errors.New("encountered invalid chunk type")
+			return InvalidChunkType
 		}
 		if err != nil {
 			return err

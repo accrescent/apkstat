@@ -3,7 +3,6 @@ package apk
 import (
 	"encoding/binary"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -31,7 +30,7 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 		return nil, err
 	}
 	if header.Header.Type != resXMLType {
-		return nil, errors.New("malformed header")
+		return nil, MalformedHeader
 	}
 
 	offset := int64(header.Header.HeaderSize)
@@ -62,7 +61,7 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 		case resXMLEndElementType:
 			err = f.parseXMLEndElement(sr)
 		default:
-			return nil, errors.New("encountered invalid chunk type")
+			return nil, InvalidChunkType
 		}
 		if err != nil {
 			return nil, err
