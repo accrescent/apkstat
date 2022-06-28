@@ -81,6 +81,8 @@ func (f *XMLFile) String() string {
 	return f.xml.String()
 }
 
+// parseStartNamespace parses a resXMLTreeNamespaceExt as a namespace start and updates the parsing
+// state of f as necessary.
 func (f *XMLFile) parseStartNamespace(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
@@ -104,6 +106,8 @@ func (f *XMLFile) parseStartNamespace(sr *io.SectionReader) error {
 	return nil
 }
 
+// parseEndNamespace parses a resXMLTreeNamespaceExt as a namespace end and updates the parsing
+// state of f as necessary.
 func (f *XMLFile) parseEndNamespace(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
@@ -120,6 +124,8 @@ func (f *XMLFile) parseEndNamespace(sr *io.SectionReader) error {
 	return nil
 }
 
+// parseXMLStartElement parses an XML start element along with its attributes and updates the
+// parsing state of f as necessary.
 func (f *XMLFile) parseXMLStartElement(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
@@ -189,6 +195,7 @@ func (f *XMLFile) parseXMLStartElement(sr *io.SectionReader) error {
 	return nil
 }
 
+// parseXMLEndElement parses an XML end element and updates the parsing state of f as necessary.
 func (f *XMLFile) parseXMLEndElement(sr *io.SectionReader) error {
 	node := new(resXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
@@ -205,6 +212,8 @@ func (f *XMLFile) parseXMLEndElement(sr *io.SectionReader) error {
 	return nil
 }
 
+// nsPrefix takes a namespace and an XML attribute name as string pool references and returns the
+// XML attribute prefixed with the namespace if the namespace string pool reference is not empty.
 func (f *XMLFile) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
 	if ns.Index == 0xFFFFFFFF {
 		return fmt.Sprintf("%s", f.stringPool[name])

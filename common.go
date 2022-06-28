@@ -153,6 +153,14 @@ func parseStringPool(sr *io.SectionReader) (map[resStringPoolRef]string, error) 
 	return stringPool, nil
 }
 
+// parseVar8Len reads a variable-length length for UTF-8 strings.
+//
+// Strings in UTF-8 format have length indicated by a length encoded in stored data. It is either 1
+// or 2 characters of length data. This allows a maximum length of 0x7FFF (32767 bytes), but you
+// should consider storing text in another way if you're using that much data in a single string.
+//
+// If the high bit is set, then there are 2 characters or 2 bytes of length data encoded. In that
+// case, we drop the high bit of the first character and add it together with the next character.
 func parseVar8Len(sr *io.SectionReader) (int, error) {
 	var size int
 	var first, second uint8
@@ -171,6 +179,14 @@ func parseVar8Len(sr *io.SectionReader) (int, error) {
 	return size, nil
 }
 
+// parseVar16Len reads a variable-length length for UTF-16 strings.
+//
+// Strings in UTF-16 format have length indicated by a length encoded in the stored data. It is
+// either 1 or 2 characters of length data. This allows a maximum length of 0x7FFFFFF (2147483647
+// bytes), but if you're storing that much data in a string, you're abusing them.
+//
+// If the high bit is set, then there are two characters or 4 bytes of length data encoded. In that
+// case, drop the high bit of the first character and add it together with the next character.
 func parseVar16Len(sr *io.SectionReader) (int, error) {
 	var size int
 	var first, second uint16

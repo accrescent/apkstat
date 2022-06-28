@@ -80,20 +80,25 @@ func NewResTable(r io.ReaderAt) (*ResTable, error) {
 
 type resID uint32
 
+// pkg returns the package index of the given resource ID.
 func (id resID) pkg() uint32 {
 	return uint32(id) >> 24
 }
 
+// type_ returns the type index of the given resource ID.
 func (id resID) type_() int {
 	return (int(id) >> 16) & 0xFF
 }
 
+// entry returns the entry index of the given resource ID
 func (id resID) entry() int {
 	return int(id) & 0xFFFF
 }
 
 const sysPackageID = 0x01
 
+// getResource retrieves the value of a resource, resolving string pool references and converting
+// other types it encounters to strings as necessary.
 func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error) {
 	pkg := id.pkg()
 	type_ := id.type_()
@@ -159,6 +164,8 @@ func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error)
 	return "", nil
 }
 
+// parseTablePackage parses a tablePackage starting at sr and updates the parsing state of f as
+// necessary.
 func (f *ResTable) parseTablePackage(sr *io.SectionReader) error {
 	pkg := new(tablePackage)
 
@@ -227,6 +234,8 @@ func (f *ResTable) parseTablePackage(sr *io.SectionReader) error {
 	return nil
 }
 
+// parseTableType parses a resTableType starting at sr and updates the parsing state of f as
+// necessary.
 func (f *ResTable) parseTableType(sr *io.SectionReader) (*tableType, error) {
 	header := new(resTableType)
 	if err := binary.Read(sr, binary.LittleEndian, header); err != nil {
@@ -331,6 +340,13 @@ type ResTableConfig struct {
 	LocaleNumberingSystem   [8]uint8
 }
 
+// getImportanceScoleOfLocale returns an integer representing the importance score of the
+// configuration locale. Since there isn't a well-specified "importance" order between variants or
+// scripts (e.g. we can't easily tell whether "en-Latn-US" is more or less specific than
+// "en-US-POSIX"), we arbitrarily decide to give priority to variants over scripts since it seems
+// useful to do so. We will consider "en-US-POSIX" more specific than "en-Latn-US."
+//
+// Unicode extension keywords are considered to be less important than scripts and variants.
 func (c ResTableConfig) getImportanceScoreOfLocale() int {
 	var x, y, z int
 	if c.LocaleVariant[0] != 0 {
@@ -352,6 +368,9 @@ func (c ResTableConfig) getImportanceScoreOfLocale() int {
 	return x + y + z
 }
 
+// isLocaleMoreSpecificThan returns a positive integer if this config is more specific than o with
+// respect to their locales, a negative integer if o is more specific, and 0 if they're equally
+// specific.
 func (c ResTableConfig) isLocaleMoreSpecificThan(o *ResTableConfig) int {
 	if c.Language != [2]uint8{} || c.Country != [2]uint8{} ||
 		o.Language != [2]uint8{} || o.Country != [2]uint8{} {
@@ -377,6 +396,7 @@ func (c ResTableConfig) isLocaleMoreSpecificThan(o *ResTableConfig) int {
 	return c.getImportanceScoreOfLocale() - o.getImportanceScoreOfLocale()
 }
 
+// isMoreSpecificThan returns whether c is more specific than o.
 func (c ResTableConfig) isMoreSpecificThan(o *ResTableConfig) bool {
 	if o == nil {
 		return false
@@ -596,6 +616,8 @@ func (c ResTableConfig) isMoreSpecificThan(o *ResTableConfig) bool {
 	return false
 }
 
+// Codes for specially handles languages and regions
+
 func english() [2]uint8 {
 	return [2]uint8{'e', 'n'} // packed version of "en"
 }
@@ -618,6 +640,9 @@ func langsAreEquivalent(lang1 [2]uint8, lang2 [2]uint8) bool {
 		lang1 == filipino() && lang2 == tagalog()
 }
 
+// isLocaleBetterThan returns whether c is a better locale match than o for the requested
+// configuration r. Similar to isBetterThan, this assumes that match has already been used to remove
+// any configurations that don't match the requested configuration at all.
 func (c ResTableConfig) isLocaleBetterThan(o, r *ResTableConfig) bool {
 	if r.Language == [2]uint8{} && r.Country == [2]uint8{} {
 		return false
@@ -691,6 +716,15 @@ func (c ResTableConfig) isLocaleBetterThan(o, r *ResTableConfig) bool {
 	return false
 }
 
+// isBetterThan returns whether c is a better match than o for the requested configuration r. It
+// assumes that match has already been used to remove any configurations that don't match the
+// requested configuration at all; if they are not first filtered, non-matching results can be
+// considered better than matching ones.
+//
+// The general rule per attribute is as follows: if the request cares about an attribute (it
+// normally does), it's a tie if c and o are equal. If they are not equal then one must be generic
+// because only generic and '== r' will pass the match() call. So if c is not generic, it wins. If c
+// _is_ generic, o wins and isBetterThan returns false.
 func (c ResTableConfig) isBetterThan(o *ResTableConfig, r *ResTableConfig) bool {
 	switch {
 	case r == nil:
@@ -929,6 +963,11 @@ func (c ResTableConfig) isBetterThan(o *ResTableConfig, r *ResTableConfig) bool 
 	return false
 }
 
+// match returns whether c can be considered a match for the request parameters in settings.
+//
+// Note this is asymetric. A default piece of data will match every request, but a request for the
+// default should not match odd specifics (i.e. a request with no MCC should not match a particular
+// MCC's data).
 func (c ResTableConfig) match(settings *ResTableConfig) bool {
 	if settings == nil {
 		return true

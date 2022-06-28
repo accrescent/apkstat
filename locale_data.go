@@ -14,7 +14,7 @@ func hasRegion(packedLocale uint32) bool {
 
 const scriptLength = 4
 const scriptParentsCount = 5
-const packedRoot = 0
+const packedRoot = 0 // to represent the root locale
 
 func findParent(packedLocale uint32, script []uint8) uint32 {
 	if hasRegion(packedLocale) {
@@ -35,6 +35,14 @@ func findParent(packedLocale uint32, script []uint8) uint32 {
 	return packedRoot
 }
 
+// findAncestors finds the ancestors of a locale and fills out with it (assuming out is large enough
+// in the process). If any of the members of stopList are seen, they are written to the output but
+// the function immediately stops.
+//
+// findAncestors also outputs the index of the last written ancestor in stopList to stopListIndex,
+// which will be -1 if it is not found in stopList.
+//
+// Returns the number of ancestors written in the output, which is always at least one.
 func findAncestors(out []uint32, stopListIndex *int,
 	packedLocale uint32, script []uint8,
 	stopList []uint32, stopSetLength int) int {
@@ -95,6 +103,8 @@ const usSpanish = 0x65735553            // es-US
 const mexicanSpanish = 0x65734D58       // es-MX
 const latinAmericanSpanish = 0x6573A424 // es-419
 
+// isSpecialSpanish returns whether the locale is a special fallback for es-419. es-US and es-MX are
+// considered its equivalent if there is no es-419.
 func isSpecialSpanish(languageAndRegion uint32) bool {
 	return languageAndRegion == usSpanish || languageAndRegion == mexicanSpanish
 }
@@ -126,6 +136,7 @@ func localeDataCompareRegions(
 
 	var requestAncestors [maxParentDepth + 1]uint32
 	var leftRightIndex int
+	// Find the parents of the request, but stop as soon as we saw left or right.
 	leftAndRight := [2]uint32{left, right}
 	ancestorCount := findAncestors(
 		requestAncestors[:],
@@ -201,5 +212,6 @@ func localeDataIsCloseToUSEnglish(region [2]uint8) bool {
 	var stopListIndex int
 	findAncestors(nil, &stopListIndex, locale, latinChars[:], englishStopList[:], 2)
 
-	return stopListIndex == 0
+	// A locale is like US English if we see "en" before "en-001" in its ancestor list.
+	return stopListIndex == 0 // 'en' is first in englishStopList
 }
