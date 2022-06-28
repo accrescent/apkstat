@@ -65,11 +65,9 @@ func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
 		return nil, err
 	}
 
-	var manifest Manifest
-	if err := xml.Unmarshal([]byte(xmlFile.String()), &manifest); err != nil {
+	if err := xml.Unmarshal([]byte(xmlFile.String()), &apk.manifest); err != nil {
 		return nil, err
 	}
-	*apk.manifest = manifest
 
 	return apk, nil
 }
