@@ -68,6 +68,8 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 			err = f.parseXMLStartElement(sr)
 		case resXMLEndElementType:
 			err = f.parseXMLEndElement(sr)
+		case resXMLCDATAType:
+			err = f.parseCDATA(sr)
 		default:
 			return nil, InvalidChunkType
 		}
@@ -218,6 +220,25 @@ func (f *XMLFile) parseXMLEndElement(sr *io.SectionReader) error {
 	return nil
 }
 
+// parseCDATA parses XML CDATA and updates the parsing state of f as necessary.
+func (f *XMLFile) parseCDATA(sr *io.SectionReader) error {
+	node := new(resXMLTreeNode)
+	if err := binary.Read(sr, binary.LittleEndian, node); err != nil {
+		return err
+	}
+
+	cdata := new(resXMLTreeCDATAExt)
+	if err := binary.Read(sr, binary.LittleEndian, cdata); err != nil {
+		return err
+	}
+
+	if err := xml.EscapeText(&f.xml, []byte(f.stringPool[cdata.Data])); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // nsPrefix takes a namespace and an XML attribute name as string pool references and returns the
 // XML attribute prefixed with the namespace if the namespace string pool reference is not empty.
 func (f *XMLFile) nsPrefix(ns resStringPoolRef, name resStringPoolRef) string {
@@ -236,6 +257,11 @@ type resXMLTreeNode struct {
 	Header     resChunkHeader
 	LineNumber uint32
 	Comment    resStringPoolRef
+}
+
+type resXMLTreeCDATAExt struct {
+	Data      resStringPoolRef
+	TypedData resValue
 }
 
 type resXMLTreeNamespaceExt struct {

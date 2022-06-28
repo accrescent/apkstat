@@ -23,6 +23,7 @@ const (
 	resXMLEndNamespaceType   = 0x101
 	resXMLStartElementType   = 0x102
 	resXMLEndElementType     = 0x103
+	resXMLCDATAType          = 0x0104
 	resXMLResourceMapType    = 0x180
 
 	resTablePackageType  = 0x200
