@@ -14,11 +14,14 @@ Usage of apkstat:
         APK to print binary XML from
   -xml string
         binary XML file to print (Android manifest is default)
+  -xmlres string
+        well-known XML resource to print. Must be one of 'network-security' or 'extraction-rules'
 ```
 
 `-apk` must be specified. If `-xml` is specified, apkstat will attempt to print
 that file in the APK ZIP hierarchy. If it isn't, apkstat will pretty print the
-Android manifest.
+Android manifest. If `-xmlres` is specified, it will pretty print the given XML
+resource.
 
 ### Library
 
