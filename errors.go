@@ -9,4 +9,6 @@ var (
 	MalformedHeader = errors.New("malformed header")
 	// InvalidChunkType is returned when an invalid chunk type is encountered.
 	InvalidChunkType = errors.New("encountered invalid chunk type")
+	// XMLResourceNotFound is returned when a requested XML resource is not found.
+	XMLResourceNotFound = errors.New("XML resource not found")
 )

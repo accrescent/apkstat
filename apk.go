@@ -15,6 +15,8 @@ import (
 	"bytes"
 	"encoding/xml"
 	"io"
+
+	"github.com/accrescent/apkstat/schemas"
 )
 
 // APK is a representation of an Android APK file.
@@ -108,6 +110,48 @@ func (a *APK) SetConfig(config *ResTableConfig) {
 // Manifest returns an APK's Manifest.
 func (a *APK) Manifest() Manifest {
 	return *a.manifest
+}
+
+// DataExtractionRules is a utility function which parses an APK's data extraction rules into a
+// struct.
+func (a *APK) DataExtractionRules() (*schemas.DataExtractionRules, error) {
+	manifestRules := a.manifest.Application.DataExtractionRules
+	if manifestRules == nil {
+		return nil, XMLResourceNotFound
+	}
+
+	xmlFile, err := a.OpenXML(*manifestRules)
+	if err != nil {
+		return nil, err
+	}
+
+	var rules schemas.DataExtractionRules
+	if err := xml.Unmarshal([]byte(xmlFile.String()), &rules); err != nil {
+		return nil, err
+	}
+
+	return &rules, nil
+}
+
+// NetworkSecurityConfig is a utility function which parses an APK's network security config into a
+// struct.
+func (a *APK) NetworkSecurityConfig() (*schemas.NetworkSecurityConfig, error) {
+	manifestNSConfig := a.manifest.Application.NetworkSecurityConfig
+	if manifestNSConfig == nil {
+		return nil, XMLResourceNotFound
+	}
+
+	xmlFile, err := a.OpenXML(*manifestNSConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	var nsConfig schemas.NetworkSecurityConfig
+	if err := xml.Unmarshal([]byte(xmlFile.String()), &nsConfig); err != nil {
+		return nil, err
+	}
+
+	return &nsConfig, nil
 }
 
 func (a *APK) Close() error {

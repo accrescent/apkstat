@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/accrescent/apkstat"
-	"github.com/accrescent/apkstat/schemas"
 )
 
 func main() {
@@ -43,43 +42,22 @@ func main() {
 
 		fmt.Println(xmlFile.String())
 	} else if *xmlResFlag != "" {
-		manifest := apk.Manifest()
 		switch *xmlResFlag {
 		case "extraction-rules":
-			xmlRes := manifest.Application.DataExtractionRules
-			if xmlRes == nil {
-				fatal("data extraction rules not present")
-			} else {
-				xmlFile, err := apk.OpenXML(*xmlRes)
-				if err != nil {
-					fatal(err.Error())
-				}
-
-				var extractionRules schemas.DataExtractionRules
-				if err := xml.Unmarshal([]byte(xmlFile.String()), &extractionRules); err != nil {
-					fatal(err.Error())
-				}
-				if err := enc.Encode(extractionRules); err != nil {
-					fatal(err.Error())
-				}
+			rules, err := apk.DataExtractionRules()
+			if err != nil {
+				fatal(err.Error())
+			}
+			if err := enc.Encode(rules); err != nil {
+				fatal(err.Error())
 			}
 		case "network-security":
-			xmlRes := manifest.Application.NetworkSecurityConfig
-			if xmlRes == nil {
-				fatal("network security config not present")
-			} else {
-				xmlFile, err := apk.OpenXML(*xmlRes)
-				if err != nil {
-					fatal(err.Error())
-				}
-
-				var nsConfig schemas.NetworkSecurityConfig
-				if err := xml.Unmarshal([]byte(xmlFile.String()), &nsConfig); err != nil {
-					fatal(err.Error())
-				}
-				if err := enc.Encode(nsConfig); err != nil {
-					fatal(err.Error())
-				}
+			nsConfig, err := apk.NetworkSecurityConfig()
+			if err != nil {
+				fatal(err.Error())
+			}
+			if err := enc.Encode(nsConfig); err != nil {
+				fatal(err.Error())
 			}
 		default:
 			fatal("xmlres '" + *xmlResFlag + "' not valid")
