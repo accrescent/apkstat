@@ -35,7 +35,7 @@ func Open(name string) (*APK, error) {
 	return OpenWithConfig(name, nil)
 }
 
-// OpenWithConfig opns an APK an path name and returns a new APK if successful. It automatically
+// OpenWithConfig opens an APK an path name and returns a new APK if successful. It automatically
 // parses the app's Android manifest and resource table, using config to resolve resource tables
 // from the manifest as necessary.
 func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
