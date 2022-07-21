@@ -30,7 +30,6 @@ func main() {
 	if err != nil {
 		fatal(err.Error())
 	}
-	defer apk.Close()
 	enc := xml.NewEncoder(os.Stdout)
 	enc.Indent("", "    ")
 

@@ -15,13 +15,14 @@ import (
 	"bytes"
 	"encoding/xml"
 	"io"
+	"os"
 
 	"github.com/accrescent/apkstat/schemas"
 )
 
 // APK is a representation of an Android APK file.
 type APK struct {
-	zipReader *zip.ReadCloser
+	zipReader *zip.Reader
 	config    *ResTableConfig
 	table     *ResTable
 	manifest  *Manifest
@@ -38,10 +39,34 @@ func Open(name string) (*APK, error) {
 // parses the app's Android manifest and resource table, using config to resolve resource tables
 // from the manifest as necessary.
 func OpenWithConfig(name string, config *ResTableConfig) (*APK, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	info, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	return FromReaderWithConfig(f, info.Size(), config)
+}
+
+// FromReader opens an APK of the given size from reader r and returns a new APK if successful. It
+// automatically parses the app's Android manifest and resource table, resolving table references
+// from the manifest as necessary.
+func FromReader(r io.ReaderAt, size int64) (*APK, error) {
+	return FromReaderWithConfig(r, size, nil)
+}
+
+// FromReaderWithConfig opens an APK of the given size from reader r and returns a new APK if
+// successful. It automatically parses the app's Android manifest and resource table, using config
+// to resolve resource table references from the manifest as necessary.
+func FromReaderWithConfig(r io.ReaderAt, size int64, config *ResTableConfig) (*APK, error) {
 	apk := new(APK)
 	apk.config = config
 
-	z, err := zip.OpenReader(name)
+	z, err := zip.NewReader(r, size)
 	if err != nil {
 		return nil, err
 	}
@@ -152,8 +177,4 @@ func (a *APK) NetworkSecurityConfig() (*schemas.NetworkSecurityConfig, error) {
 	}
 
 	return &nsConfig, nil
-}
-
-func (a *APK) Close() error {
-	return a.zipReader.Close()
 }
