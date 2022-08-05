@@ -40,7 +40,7 @@ func NewResTable(r io.ReaderAt) (*ResTable, error) {
 		return nil, err
 	}
 	if header.Header.Type != resTableChunkType {
-		return nil, MalformedHeader
+		return nil, ErrMalformedHeader
 	}
 
 	f.packages = make(map[uint32]*tablePackage)
@@ -70,7 +70,7 @@ func NewResTable(r io.ReaderAt) (*ResTable, error) {
 		case resTablePackageType:
 			err = f.parseTablePackage(io.NewSectionReader(sr, offset, maxReadBytes-offset))
 		default:
-			return nil, InvalidChunkType
+			return nil, ErrInvalidChunkType
 		}
 		if err != nil {
 			return nil, err
@@ -109,7 +109,7 @@ func (f *ResTable) getResource(id resID, config *ResTableConfig) (string, error)
 	entry := id.entry()
 
 	if type_ < 0 {
-		return "", BadIndex
+		return "", ErrBadIndex
 	}
 
 	if pkg == sysPackageID {
@@ -221,7 +221,7 @@ func (f *ResTable) parseTablePackage(sr *io.SectionReader) error {
 		case resTableTypeSpecType:
 			// unimplemented
 		default:
-			return InvalidChunkType
+			return ErrInvalidChunkType
 		}
 		if err != nil {
 			return err

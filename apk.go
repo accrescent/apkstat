@@ -142,7 +142,7 @@ func (a *APK) Manifest() Manifest {
 func (a *APK) DataExtractionRules() (*schemas.DataExtractionRules, error) {
 	manifestRules := a.manifest.Application.DataExtractionRules
 	if manifestRules == nil {
-		return nil, XMLResourceNotFound
+		return nil, ErrResourceNotFound
 	}
 
 	xmlFile, err := a.OpenXML(*manifestRules)
@@ -163,7 +163,7 @@ func (a *APK) DataExtractionRules() (*schemas.DataExtractionRules, error) {
 func (a *APK) NetworkSecurityConfig() (*schemas.NetworkSecurityConfig, error) {
 	manifestNSConfig := a.manifest.Application.NetworkSecurityConfig
 	if manifestNSConfig == nil {
-		return nil, XMLResourceNotFound
+		return nil, ErrResourceNotFound
 	}
 
 	xmlFile, err := a.OpenXML(*manifestNSConfig)

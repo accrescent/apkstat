@@ -34,7 +34,7 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 		return nil, err
 	}
 	if header.Header.Type != resXMLType {
-		return nil, MalformedHeader
+		return nil, ErrMalformedHeader
 	}
 
 	offset := int64(header.Header.HeaderSize)
@@ -71,7 +71,7 @@ func NewXMLFile(r io.ReaderAt, t *ResTable, cfg *ResTableConfig) (*XMLFile, erro
 		case resXMLCDATAType:
 			err = f.parseCDATA(sr)
 		default:
-			return nil, InvalidChunkType
+			return nil, ErrInvalidChunkType
 		}
 		if err != nil {
 			return nil, err
