@@ -14,8 +14,12 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"io"
 	"os"
+	"regexp"
+	"strings"
+	"unicode"
 
 	"github.com/accrescent/apkstat/schemas"
 )
@@ -96,7 +100,44 @@ func FromReaderWithConfig(r io.ReaderAt, size int64, config *ResTableConfig) (*A
 		return nil, err
 	}
 
+	// Validate application ID so we can trust it later
+	if valid := validateAppID(apk.manifest.Package); !valid {
+		return nil, errors.New("invalid application ID")
+	}
+
 	return apk, nil
+}
+
+var alphanumericUnderscore = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+
+// validateAppID returns whether appID is a valid Android application ID according to
+// https://developer.android.com/studio/build/configure-app-module. Specifically, it verifies:
+//
+// 1. appID contains at least two segments (one or more dots).
+// 2. Each segment starts with a letter.
+// 3. All characters are alphanumeric or an underscore.
+//
+// If any of these conditions are not met, this function returns false.
+func validateAppID(appID string) bool {
+	// 1
+	segments := strings.Split(appID, ".")
+	if len(segments) < 2 {
+		return false
+	}
+
+	for _, segment := range segments {
+		// 2
+		if !unicode.IsLetter([]rune(segment)[0]) {
+			return false
+		}
+
+		// 3
+		if !alphanumericUnderscore.Match([]byte(segment)) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // OpenXML is a utility function for opening an arbitrary Android binary XML file within an APK. If
