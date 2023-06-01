@@ -134,7 +134,7 @@ func validateAppID(appID string) bool {
 		}
 
 		// 3
-		if !alphanumericUnderscore.Match([]byte(segment)) {
+		if !alphanumericUnderscore.MatchString(segment) {
 			return false
 		}
 	}
