@@ -126,15 +126,14 @@ func validateAppID(appID string) bool {
 	}
 
 	for _, segment := range segments {
+		switch {
+		case segment == "":
+			return false
 		// 2
-		if segment == "" {
+		case !unicode.IsLetter([]rune(segment)[0]):
 			return false
-		} else if !unicode.IsLetter([]rune(segment)[0]) {
-			return false
-		}
-
 		// 3
-		if !alphanumericUnderscore.MatchString(segment) {
+		case !alphanumericUnderscore.MatchString(segment):
 			return false
 		}
 	}
