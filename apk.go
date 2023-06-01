@@ -127,7 +127,9 @@ func validateAppID(appID string) bool {
 
 	for _, segment := range segments {
 		// 2
-		if !unicode.IsLetter([]rune(segment)[0]) {
+		if segment == "" {
+			return false
+		} else if !unicode.IsLetter([]rune(segment)[0]) {
 			return false
 		}
 
