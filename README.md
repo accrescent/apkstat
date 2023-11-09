@@ -1,5 +1,9 @@
 ## apkstat
 
+**NOTE: This repository is no longer maintained since our project which depends on it is now
+defunct. It still works, but no additional work will go into improving it for the foreseeable
+future.**
+
 An APK parsing tool and library for Go.
 
 ## Usage
